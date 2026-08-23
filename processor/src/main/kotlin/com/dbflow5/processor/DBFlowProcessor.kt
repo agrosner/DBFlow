@@ -1,25 +1,18 @@
 package com.dbflow5.processor
 
-import com.dbflow5.annotation.Column
-import com.dbflow5.annotation.ColumnIgnore
-import com.dbflow5.annotation.Fts3
-import com.dbflow5.annotation.Fts4
-import com.dbflow5.annotation.Migration
-import com.dbflow5.annotation.ModelView
-import com.dbflow5.annotation.MultipleManyToMany
-import com.dbflow5.annotation.QueryModel
-import com.dbflow5.annotation.Table
-import com.dbflow5.annotation.TypeConverter
-import com.dbflow5.contentprovider.annotation.ContentProvider
-import com.dbflow5.contentprovider.annotation.TableEndpoint
-import com.dbflow5.processor.definition.DatabaseHolderDefinition
+import com.dbflow5.codegen.shared.Annotations
+import com.dbflow5.codegen.shared.sharedModule
+import com.grosner.dbflow5.codegen.kotlin.codeGenModule
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import org.koin.core.context.startKoin
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.TypeElement
 
-class DBFlowProcessor : AbstractProcessor() {
+class DBFlowProcessor : AbstractProcessor(), KoinComponent {
 
     private lateinit var manager: ProcessorManager
 
@@ -31,21 +24,8 @@ class DBFlowProcessor : AbstractProcessor() {
      * @return the names of the annotation types supported by this
      * * processor, or an empty set if none
      */
-    override fun getSupportedAnnotationTypes() = listOf(
-        Table::class,
-        Column::class,
-        TypeConverter::class,
-        ModelView::class,
-        Migration::class,
-        ContentProvider::class,
-        TableEndpoint::class,
-        ColumnIgnore::class,
-        QueryModel::class,
-        Fts3::class,
-        Fts4::class,
-        MultipleManyToMany::class).mapTo(linkedSetOf<String>()) { it.java.canonicalName }
-
-    override fun getSupportedOptions() = linkedSetOf(DatabaseHolderDefinition.OPTION_TARGET_MODULE_NAME)
+    override fun getSupportedAnnotationTypes() =
+        Annotations.values.mapTo(linkedSetOf()) { it.qualifiedName }
 
     /**
      * If the processor class is annotated with [ ], return the source version in the
@@ -59,18 +39,17 @@ class DBFlowProcessor : AbstractProcessor() {
     override fun init(processingEnv: ProcessingEnvironment) {
         super.init(processingEnv)
         manager = ProcessorManager(processingEnv)
-        manager.addHandlers(MigrationHandler(),
-            TypeConverterHandler(),
-            DatabaseHandler(),
-            TableHandler(),
-            QueryModelHandler(),
-            ModelViewHandler(),
-            ContentProviderHandler(),
-            TableEndpointHandler())
+        startKoin {
+            modules(
+                sharedModule,
+                codeGenModule,
+                getModule(processingEnv)
+            )
+        }
     }
 
     override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
-        manager.handle(manager, roundEnv)
+        inject<DBFlowKaptProcessor>().value.process(roundEnv)
 
         // return true if we successfully processed the Annotation.
         return true

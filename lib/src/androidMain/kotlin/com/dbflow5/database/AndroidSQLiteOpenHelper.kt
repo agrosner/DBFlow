@@ -1,0 +1,104 @@
+package com.dbflow5.database
+
+import android.content.Context
+import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteOpenHelper
+import com.dbflow5.database.migration.DefaultMigrator
+import com.dbflow5.database.migration.Migrator
+import com.dbflow5.delegates.databaseProperty
+
+/**
+ * Description: Wraps around the [SQLiteOpenHelper] and provides extra features for use in this library.
+ */
+class AndroidSQLiteOpenHelper(
+    private val context: Context,
+    private val generatedDatabase: GeneratedDatabase,
+    callback: DatabaseCallback?,
+    migrator: Migrator = DefaultMigrator(AndroidMigrationFileHelper(context), generatedDatabase),
+    private val databaseHelperDelegate: DatabaseHelperDelegate = DatabaseHelperDelegate(
+        callback,
+        generatedDatabase,
+        helper = DatabaseHelper(migrator, generatedDatabase),
+        databaseBackup = DatabaseBackup(context, generatedDatabase),
+    ),
+) : SQLiteOpenHelper(
+    context,
+    generatedDatabase.openHelperName,
+    null,
+    generatedDatabase.databaseVersion,
+), OpenHelper, OpenHelperDelegate by databaseHelperDelegate {
+
+    private val _databaseName = generatedDatabase.databaseFileName
+
+    override val database: AndroidDatabase by databaseProperty {
+        AndroidDatabase.from(
+            writableDatabase,
+            generatedDatabase
+        )
+    }
+
+    override val isOpen: Boolean
+        get() = writableDatabase.isOpen
+
+    override fun setWriteAheadLoggingEnabled(enabled: Boolean, connection: DatabaseConnection) {
+        setWriteAheadLoggingEnabled(enabled)
+    }
+
+    /**
+     * Set a listener to listen for specific DB events and perform an action before we execute this classes
+     * specific methods.
+     *
+     * @param callback
+     */
+    override fun setDatabaseListener(callback: DatabaseCallback?) {
+        databaseHelperDelegate.setDatabaseHelperListener(callback)
+    }
+
+    override fun onConfigure(db: SQLiteDatabase) {
+        databaseHelperDelegate.onConfigure(AndroidDatabase.from(db, generatedDatabase))
+    }
+
+    override fun onCreate(db: SQLiteDatabase) {
+        databaseHelperDelegate.onCreate(AndroidDatabase.from(db, generatedDatabase))
+    }
+
+    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+        databaseHelperDelegate.onUpgrade(
+            AndroidDatabase.from(db, generatedDatabase),
+            oldVersion,
+            newVersion
+        )
+    }
+
+    override fun onOpen(db: SQLiteDatabase) {
+        databaseHelperDelegate.onOpen(
+            AndroidDatabase.from(
+                db,
+                generatedDatabase
+            )
+        )
+    }
+
+    override fun onDowngrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+        databaseHelperDelegate.onDowngrade(
+            AndroidDatabase.from(
+                db,
+                generatedDatabase
+            ), oldVersion, newVersion
+        )
+    }
+
+    override fun delete() {
+        context.deleteDatabase(_databaseName)
+    }
+
+    companion object {
+        @JvmStatic
+        fun createHelperCreator(context: Context): OpenHelperCreator =
+            OpenHelperCreator { db: GeneratedDatabase, databaseCallback: DatabaseCallback? ->
+                AndroidSQLiteOpenHelper(context, db, databaseCallback)
+            }
+    }
+
+}
+

@@ -1,8 +1,6 @@
 package com.dbflow5.sqlcipher
 
-import com.dbflow5.database.BaseDatabaseStatement
 import com.dbflow5.database.DatabaseStatement
-
 import net.sqlcipher.database.SQLiteStatement
 
 /**
@@ -10,9 +8,10 @@ import net.sqlcipher.database.SQLiteStatement
  * the contained [SQLiteStatement].
  */
 class SQLCipherStatement
-internal constructor(val statement: SQLiteStatement) : BaseDatabaseStatement() {
+internal constructor(val statement: SQLiteStatement) : DatabaseStatement {
 
-    override fun executeUpdateDelete(): Long = rethrowDBFlowException { statement.executeUpdateDelete().toLong() }
+    override fun executeUpdateDelete(): Long =
+        rethrowDBFlowException { statement.executeUpdateDelete().toLong() }
 
     override fun execute() {
         statement.execute()
@@ -22,9 +21,11 @@ internal constructor(val statement: SQLiteStatement) : BaseDatabaseStatement() {
         statement.close()
     }
 
-    override fun simpleQueryForLong(): Long = rethrowDBFlowException { statement.simpleQueryForLong() }
+    override fun simpleQueryForLong(): Long =
+        rethrowDBFlowException { statement.simpleQueryForLong() }
 
-    override fun simpleQueryForString(): String? = rethrowDBFlowException { statement.simpleQueryForString() }
+    override fun simpleQueryForString(): String? =
+        rethrowDBFlowException { statement.simpleQueryForString() }
 
     override fun executeInsert(): Long = rethrowDBFlowException { statement.executeInsert() }
 
@@ -46,14 +47,6 @@ internal constructor(val statement: SQLiteStatement) : BaseDatabaseStatement() {
 
     override fun bindBlob(index: Int, bytes: ByteArray) {
         statement.bindBlob(index, bytes)
-    }
-
-    override fun bindAllArgsAsStrings(selectionArgs: Array<String>?) {
-        if (selectionArgs != null) {
-            for (i in selectionArgs.size downTo 1) {
-                bindString(i, selectionArgs[i - 1])
-            }
-        }
     }
 
     companion object {

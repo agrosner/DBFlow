@@ -24,7 +24,6 @@
     * [TypeConverters](usage2/usage/typeconverters.md)
     * [Observability](usage2/usage/observability.md)
   * [RXJavaSupport](usage2/rxjavasupport.md)
-  * [ContentProviderGeneration](usage2/contentprovidergeneration.md)
   * [5.0 Migration Guide](usage2/5.0-migration-guide.md)
   * [Migration4Guide](usage2/migration4guide.md)
 * [ISSUE\_TEMPLATE](issue_template.md)

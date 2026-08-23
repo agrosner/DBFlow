@@ -1,0 +1,74 @@
+package com.dbflow5.database
+
+import java.sql.PreparedStatement
+import java.sql.Types
+import javax.sql.rowset.serial.SerialBlob
+
+/**
+ * Reimplements Android's version.
+ */
+class JDBCDatabaseStatement
+internal constructor(
+    internal val statement: PreparedStatement,
+) : DatabaseStatement {
+
+    override fun executeUpdateDelete(): Long = rethrowDBFlowException {
+        statement.executeUpdate().toLong()
+    }
+
+    override fun execute() = rethrowDBFlowException {
+        statement.execute()
+        Unit
+    }
+
+    override fun close() {
+        statement.close()
+    }
+
+    override fun simpleQueryForLong(): Long = rethrowDBFlowException {
+        statement.executeQuery().use { cursor ->
+            if (cursor.next()) cursor.getLong(1) else 0
+        }
+    }
+
+    override fun simpleQueryForString(): String? = rethrowDBFlowException {
+        statement.executeQuery().use { cursor ->
+            if (cursor.next()) cursor.getString(1) else null
+        }
+    }
+
+    override fun executeInsert(): Long = rethrowDBFlowException {
+        statement.executeUpdate()
+        statement.generatedKeys.use { keys ->
+            if (keys.next()) keys.getLong(1) else 0L
+        }
+    }
+
+    override fun bindString(index: Int, s: String) {
+        statement.setString(index, s)
+    }
+
+    override fun bindNull(index: Int) {
+        statement.setNull(index, Types.VARCHAR)
+    }
+
+    override fun bindLong(index: Int, aLong: Long) {
+        statement.setLong(index, aLong)
+    }
+
+    override fun bindDouble(index: Int, aDouble: Double) {
+        statement.setDouble(index, aDouble)
+    }
+
+    override fun bindBlob(index: Int, bytes: ByteArray) {
+        statement.setBlob(index, SerialBlob(bytes))
+    }
+
+    companion object {
+
+        @JvmStatic
+        fun from(
+            statement: PreparedStatement,
+        ): JDBCDatabaseStatement = JDBCDatabaseStatement(statement)
+    }
+}

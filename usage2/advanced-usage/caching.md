@@ -64,7 +64,7 @@ Cache sizes are not supported for `SimpleMapCache`. This is because `Map` can ho
 To enable caching on a single-primary key table, simply specify that it is enabled:
 
 ```kotlin
-@Table(database = AppDatabase.class, cachingEnabled = true)
+@Table(database = AppDatabase::class)
 class CacheableModel {
 
     @PrimaryKey(autoincrement = true)
@@ -123,7 +123,7 @@ companion object {
 This allows for tables that have multiple primary keys be used in caching. To use, add a `@MultiCacheField` `@JvmField` field. for example we have a `Coordinate` class:
 
 ```kotlin
-@Table(database = AppDatabase.class, cachingEnabled = true)
+@Table(database = AppDatabase::class)
 class Coordinate(@PrimaryKey latitude: Double = 0.0,
                  @PrimaryKey longitude: Double = 0.0) {
 

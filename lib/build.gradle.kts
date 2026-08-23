@@ -1,38 +1,71 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+
 plugins {
-    id("com.android.library")
-    kotlin("android")
+    id("org.jetbrains.kotlin.multiplatform")
+    id("com.android.kotlin.multiplatform.library")
 }
-// project.ext.artifactId = bt_name
 
-android {
-    compileSdkVersion(Versions.TargetSdk)
-
-    defaultConfig {
-        minSdkVersion(Versions.MinSdk)
-        targetSdkVersion(Versions.TargetSdk)
+kotlin {
+    jvm()
+    iosArm64()
+    iosSimulatorArm64()
+    macosArm64()
+    targets.withType<KotlinNativeTarget>().configureEach {
+        binaries.all {
+            linkerOpts("-lsqlite3")
+        }
     }
-
-    lintOptions {
-        isAbortOnError = false
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+    android {
+        namespace = "com.dbflow5.lib"
+        compileSdk = Versions.TargetSdk
+        minSdk = Versions.MinSdk
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+        }
     }
 
     sourceSets {
-        getByName("main").java.srcDirs("src/main/kotlin")
-    }
-
-    kotlinOptions {
-        freeCompilerArgs = listOf("-Xinline-classes")
+        all {
+            languageSettings.optIn("com.dbflow5.annotation.opts.DelicateDBFlowApi")
+            languageSettings.optIn("com.dbflow5.annotation.opts.InternalDBFlowApi")
+            languageSettings.optIn("kotlinx.coroutines.DelicateCoroutinesApi")
+        }
+        commonMain.dependencies {
+            api(project(":core"))
+            api(libs.coroutines)
+            api(libs.atomicFu)
+        }
+        val javaPlatformMain = create("javaPlatformMain") {
+            dependsOn(getByName("commonMain"))
+        }
+        getByName("androidMain") {
+            dependsOn(javaPlatformMain)
+            dependencies {
+                api(libs.coroutines.android)
+            }
+        }
+        getByName("jvmMain") {
+            dependsOn(javaPlatformMain)
+            dependencies {
+                implementation(libs.sqliteJdbc)
+                implementation(libs.slf4j.api)
+                implementation(libs.slf4j.simple)
+            }
+        }
+        val nativeMain = create("nativeMain") {
+            dependsOn(getByName("commonMain"))
+            dependencies {
+                implementation(libs.sqliter)
+                implementation(libs.okio)
+            }
+        }
+        val iosMain = create("iosMain") {
+            dependsOn(nativeMain)
+        }
+        listOf("iosArm64Main", "iosSimulatorArm64Main").forEach { name ->
+            getByName(name).dependsOn(iosMain)
+        }
+        getByName("macosArm64Main").dependsOn(nativeMain)
     }
 }
-
-dependencies {
-    api(project(":core"))
-    api(Dependencies.AndroidX.Annotations)
-}
-
-apply(from = "../kotlin-artifacts.gradle")
