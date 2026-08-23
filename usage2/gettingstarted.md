@@ -23,7 +23,7 @@ To learn more about what you can configure in a database, read [here](usage/data
 
 ## Initialize FlowManager
 
-DBFlow currently needs an instance of `Context` in order to use it for a few features such as reading from assets, content observing, and generating `ContentProvider`.
+DBFlow currently needs an instance of `Context` in order to use it for a few features such as reading from assets and content observing.
 
 Initialize in your `Application` subclass. You can also initialize it from other `Context` but we always grab the `Application` `Context` \(this is done only once\).
 

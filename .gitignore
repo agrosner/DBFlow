@@ -32,3 +32,16 @@ proguard/
 *.iws
 .idea/
 crashlytics-build.properties
+
+# Local AI agent context
+.agents/
+.claude/
+.codex/
+.opencode/
+.gemini/
+.windsurf/
+.cline/
+.crush/
+.continue/
+.aider/
+.cursor/skills/

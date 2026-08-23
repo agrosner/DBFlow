@@ -1,60 +1,54 @@
 package com.dbflow5.reactivestreams.query
 
-import com.dbflow5.config.FlowManager
-import com.dbflow5.config.databaseForTable
-import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.database.GeneratedDatabase
+import com.dbflow5.database.beginTransactionAsync
 import com.dbflow5.observing.OnTableChangedObserver
-import com.dbflow5.query.Join
-import com.dbflow5.query.ModelQueriable
-import com.dbflow5.query.extractFrom
-import com.dbflow5.reactivestreams.transaction.asMaybe
+import com.dbflow5.query.ExecutableQuery
+import com.dbflow5.query.HasAssociatedAdapters
+import com.dbflow5.query.SelectResult
+import com.dbflow5.reactivestreams.transaction.asSingle
 import io.reactivex.rxjava3.core.FlowableEmitter
 import io.reactivex.rxjava3.core.FlowableOnSubscribe
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
-import kotlin.reflect.KClass
 
 /**
- * Description: Emits when table changes occur for the related table on the [ModelQueriable].
- * If the [ModelQueriable] relates to a [Join], this can be multiple tables.
+ * Description: Emits when table changes occur for the related table on the [SelectResult].
+ * If the [executable] relates to a Join, this can be multiple tables.
  */
-class TableChangeOnSubscribe<T : Any, R : Any?>(private val modelQueriable: ModelQueriable<T>,
-                                                private val evalFn: ModelQueriable<T>.(DatabaseWrapper) -> R)
-    : FlowableOnSubscribe<R> {
+class TableChangeOnSubscribe<Table : Any, Result : Any, Q>(
+    private val executable: Q,
+    private val selectResultFn: suspend SelectResult<Table>.() -> Result,
+    private val db: GeneratedDatabase,
+) : FlowableOnSubscribe<Result>
+    where Q : ExecutableQuery<SelectResult<Table>>,
+          Q : HasAssociatedAdapters {
 
-    private lateinit var flowableEmitter: FlowableEmitter<R>
+    private lateinit var flowableEmitter: FlowableEmitter<Result>
 
     private val currentTransactions = CompositeDisposable()
 
-    private val associatedTables: Set<Class<*>> = modelQueriable.extractFrom()?.associatedTables
-        ?: setOf(modelQueriable.table)
-
-    private val onTableChangedObserver = object : OnTableChangedObserver(associatedTables.toList()) {
-        override fun onChanged(tables: Set<Class<*>>) {
-            if (tables.isNotEmpty()) {
-                evaluateEmission(tables.first().kotlin)
-            }
-        }
+    private val onTableChangedObserver = OnTableChangedObserver(executable.associatedAdapters) {
+        evaluateEmission()
     }
 
-    private fun evaluateEmission(table: KClass<*> = modelQueriable.table.kotlin) {
+    private fun evaluateEmission() {
         if (this::flowableEmitter.isInitialized) {
-            currentTransactions.add(databaseForTable(table)
-                .beginTransactionAsync { modelQueriable.evalFn(it) }
-                .shouldRunInTransaction(false)
-                .asMaybe()
-                .subscribe {
-                    flowableEmitter.onNext(it)
-                })
+            currentTransactions.add(
+                db
+                    .beginTransactionAsync { executable.execute().selectResultFn() }
+                    .shouldRunInTransaction(false)
+                    .asSingle()
+                    .subscribe { result -> flowableEmitter.onNext(result) }
+            )
         }
     }
 
     @Suppress("UNCHECKED_CAST")
     @Throws(Exception::class)
-    override fun subscribe(e: FlowableEmitter<R>) {
+    override fun subscribe(e: FlowableEmitter<Result>) {
         flowableEmitter = e
 
-        val db = FlowManager.getDatabaseForTable(associatedTables.first())
         // force initialize the dbr
         db.writableDatabase
 

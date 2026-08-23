@@ -1,0 +1,52 @@
+name: Claude PR Fix
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  id-token: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    # Only run when someone comments "@claude fix" on a PR
+    if: |
+      github.event.issue.pull_request &&
+      contains(github.event.comment.body, '@claude fix') &&
+      github.event.comment.user.login != 'claude[bot]'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            You are fixing issues on a pull request for a Kotlin Multiplatform project.
+
+            Steps:
+            1. Read the full PR diff against main.
+            2. Read all review comments and feedback on this PR.
+            3. Identify high-value fixes that are within the PR's scope.
+            4. Apply only targeted, minimal fixes.
+            5. Do NOT refactor unrelated code or broaden the PR scope.
+            6. Do NOT add features beyond what the PR intended.
+            7. Preserve architecture and module boundaries.
+            8. Ensure KMP source-set correctness.
+            9. Commit fixes with clear messages describing what was fixed and why.
+            10. Push fixes to the PR branch.
+
+            Constraints:
+            - Only fix issues relevant to this PR
+            - Prefer root-cause fixes over workarounds
+            - Do not weaken security or trust boundaries
+            - Keep changes minimal and traceable
+            - If a fix would significantly expand scope, leave a comment instead
+          claude_args: "--model claude-sonnet-4-6 --max-turns 10"
+          additional_permissions: "Bash(*),Read(*),Write(*),Edit(*),Glob(*),Grep(*)"

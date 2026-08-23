@@ -1,34 +1,17 @@
 plugins {
-    id("com.android.library")
-    kotlin("android")
+    id("androidConfig")
 }
-// project.ext.artifactId = bt_name
 
 android {
-    compileSdkVersion(Versions.TargetSdk)
-
+    namespace = "com.dbflow5.reactivestreams"
     defaultConfig {
-        minSdkVersion(Versions.MinSdkRX)
-        targetSdkVersion(Versions.TargetSdk)
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-
-    sourceSets {
-        getByName("main").java.srcDirs("src/main/kotlin")
-    }
-
-    kotlinOptions {
-        jvmTarget = "1.8"
+        minSdk = Versions.MinSdkRX
     }
 }
+
+configureJdk("com.dbflow5.annotation.opts.InternalDBFlowApi")
 
 dependencies {
     api(project(":lib"))
-    api(Dependencies.RX)
+    api(libs.rx)
 }
-
-apply(from = "../kotlin-artifacts.gradle")

@@ -1,13 +1,32 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    kotlin("jvm")
+    id("org.jetbrains.kotlin.multiplatform")
+    id("com.android.kotlin.multiplatform.library")
 }
 
-// project.ext.artifactId = bt_name
+kotlin {
+    jvm()
+    iosArm64()
+    iosSimulatorArm64()
+    macosArm64()
+    android {
+        namespace = "com.dbflow5.core"
+        compileSdk = Versions.TargetSdk
+        minSdk = Versions.MinSdk
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+        }
+    }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
+    sourceSets {
+        all {
+            languageSettings.optIn("kotlin.RequiresOptIn")
+        }
+        val javaPlatformMain = create("javaPlatformMain") {
+            dependsOn(getByName("commonMain"))
+        }
+        getByName("androidMain").dependsOn(javaPlatformMain)
+        getByName("jvmMain").dependsOn(javaPlatformMain)
+    }
 }
-
-apply(from = "../kotlin-artifacts.gradle")

@@ -1,30 +1,18 @@
 plugins {
-    id("com.android.library")
-    kotlin("android")
+    id("androidConfig")
 }
-// project.ext.artifactId = bt_name
 
 android {
-    compileSdkVersion(Versions.TargetSdk)
-
+    namespace = "com.dbflow5.sqlcipher"
     defaultConfig {
-        minSdkVersion(Versions.SQLCipherMin)
-        targetSdkVersion(Versions.TargetSdk)
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-
-    sourceSets {
-        getByName("main").java.srcDirs("src/main/kotlin")
+        minSdk = Versions.SQLCipherMin
     }
 }
+
+configureJdk("com.dbflow5.annotation.opts.InternalDBFlowApi")
 
 dependencies {
-    api(Dependencies.SqlCipher)
+    api(libs.sqlCipher)
+    api(libs.androidx.sqlite)
     api(project(":lib"))
 }
-
-apply(from = "../kotlin-artifacts.gradle")

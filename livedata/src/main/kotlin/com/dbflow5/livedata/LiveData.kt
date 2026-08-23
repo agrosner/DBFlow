@@ -1,44 +1,45 @@
 package com.dbflow5.livedata
 
 import androidx.lifecycle.LiveData
-import com.dbflow5.config.FlowManager
-import com.dbflow5.config.databaseForTable
-import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.database.GeneratedDatabase
+import com.dbflow5.database.beginTransactionAsync
 import com.dbflow5.observing.OnTableChangedObserver
-import com.dbflow5.query.ModelQueriable
-import com.dbflow5.query.extractFrom
-import kotlin.reflect.KClass
+import com.dbflow5.query.ExecutableQuery
+import com.dbflow5.query.HasAssociatedAdapters
+import com.dbflow5.query.SelectResult
 
 /**
  * Return a new [LiveData] instance. Specify using the [evalFn] what query to run.
  */
-fun <T : Any, Q : ModelQueriable<T>, R> Q.toLiveData(evalFn: ModelQueriable<T>.(DatabaseWrapper) -> R): LiveData<R> =
-    QueryLiveData(this, evalFn)
+fun <Table : Any, Result, Q> Q.toLiveData(
+    db: GeneratedDatabase,
+    selectResultFn: suspend SelectResult<Table>.() -> Result,
+): LiveData<Result>
+    where Q : ExecutableQuery<SelectResult<Table>>,
+          Q : HasAssociatedAdapters =
+    QueryLiveData(this, selectResultFn, db)
 
-class QueryLiveData<T : Any, R : Any?>(private val modelQueriable: ModelQueriable<T>,
-                                       private val evalFn: ModelQueriable<T>.(DatabaseWrapper) -> R) : LiveData<R>() {
+class QueryLiveData<Table : Any, Result, Q>(
+    private val executable: Q,
+    private val selectResultFn: suspend SelectResult<Table>.() -> Result,
+    private val db: GeneratedDatabase,
+) : LiveData<Result>()
+    where Q : ExecutableQuery<SelectResult<Table>>,
+          Q : HasAssociatedAdapters {
 
-    private val associatedTables: Set<Class<*>> = modelQueriable.extractFrom()?.associatedTables
-        ?: setOf(modelQueriable.table)
-
-    private val onTableChangedObserver = object : OnTableChangedObserver(associatedTables.toList()) {
-        override fun onChanged(tables: Set<Class<*>>) {
-            if (tables.isNotEmpty()) {
-                evaluateEmission(tables.first().kotlin)
-            }
-        }
+    private val onTableChangedObserver = OnTableChangedObserver(executable.associatedAdapters) {
+        evaluateEmission()
     }
 
-    private fun evaluateEmission(table: KClass<*> = modelQueriable.table.kotlin) {
-        databaseForTable(table)
-            .beginTransactionAsync { modelQueriable.evalFn(it) }
-            .execute { _, r -> value = r }
+    private fun evaluateEmission() {
+        db
+            .beginTransactionAsync { executable.execute().selectResultFn() }
+            .enqueue { _, r -> value = r }
     }
 
     override fun onActive() {
         super.onActive()
 
-        val db = FlowManager.getDatabaseForTable(associatedTables.first())
         // force initialize the db
         db.writableDatabase
 
@@ -51,7 +52,6 @@ class QueryLiveData<T : Any, R : Any?>(private val modelQueriable: ModelQueriabl
 
     override fun onInactive() {
         super.onInactive()
-        val db = FlowManager.getDatabaseForTable(associatedTables.first())
         val observer = db.tableObserver
         observer.removeOnTableChangedObserver(onTableChangedObserver)
     }

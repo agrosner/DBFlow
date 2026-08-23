@@ -30,22 +30,6 @@ object ElementUtility {
         return elements
     }
 
-    fun isInSamePackage(manager: ProcessorManager, elementToCheck: Element, original: Element): Boolean {
-        return manager.elements.getPackageOf(elementToCheck).toString() == manager.elements.getPackageOf(original).toString()
-    }
-
-    fun isPackagePrivate(element: Element): Boolean {
-        return !element.modifiers.contains(Modifier.PUBLIC) && !element.modifiers.contains(Modifier.PRIVATE)
-            && !element.modifiers.contains(Modifier.STATIC)
-    }
-
-    fun isValidAllFields(allFields: Boolean, element: Element): Boolean {
-        return allFields && element.kind.isField &&
-            !element.modifiers.contains(Modifier.STATIC) &&
-            !element.modifiers.contains(Modifier.FINAL) &&
-            element.annotation<ColumnIgnore>() == null
-    }
-
     /**
      * Attempts to retrieve a [ClassName] from the [elementClassname] Fully-qualified name. If it
      * does not exist yet via [ClassName.get], we manually create the [ClassName] object to reference

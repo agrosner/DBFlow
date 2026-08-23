@@ -1,0 +1,101 @@
+{
+  "version": 1,
+  "skills": {
+    "compose-animations": {
+      "source": "chrisbanes/skills",
+      "sourceType": "github",
+      "skillPath": "skills/compose-animations/SKILL.md",
+      "computedHash": "7648e35dccf44c2929e2ebf19addc00bc28edd2d9ec5692582f865cb72bbe3d0"
+    },
+    "compose-component-design": {
+      "source": "chrisbanes/skills",
+      "sourceType": "github",
+      "skillPath": "skills/compose-component-design/SKILL.md",
+      "computedHash": "cf6fb395e222a9e13c66de6d7c8f6cec4b6b917e68d6f8a7d7a285d037caa131"
+    },
+    "compose-focus-navigation": {
+      "source": "chrisbanes/skills",
+      "sourceType": "github",
+      "skillPath": "skills/compose-focus-navigation/SKILL.md",
+      "computedHash": "05147a310caa82814f329dc3acfb0b47dde27ab25ba8e53ca4db78a773b13c4d"
+    },
+    "compose-performance": {
+      "source": "chrisbanes/skills",
+      "sourceType": "github",
+      "skillPath": "skills/compose-performance/SKILL.md",
+      "computedHash": "4134ee141c8ec9d5d55211e3a415b9ee915163c1e58776a9c5ba00b65dd0aa1a"
+    },
+    "compose-state-and-effects": {
+      "source": "chrisbanes/skills",
+      "sourceType": "github",
+      "skillPath": "skills/compose-state-and-effects/SKILL.md",
+      "computedHash": "6267563e9f7e5ca76aa65e72e4d79b8d03abbfc0e16fc1ff963e26412e89086d"
+    },
+    "compose-ui-testing-patterns": {
+      "source": "chrisbanes/skills",
+      "sourceType": "github",
+      "skillPath": "skills/compose-ui-testing-patterns/SKILL.md",
+      "computedHash": "41e15faa4b3f870ae8a10581d841c0de4f1c8d787177e967a906911844b32a24"
+    },
+    "gradle-run": {
+      "source": "chrisbanes/skills",
+      "sourceType": "github",
+      "skillPath": "skills/gradle-run/SKILL.md",
+      "computedHash": "c46642d2ef80159aaec457de0261179470ac52cdde2dbac40f62871bc69799ce"
+    },
+    "grounded-writing": {
+      "source": "chrisbanes/skills",
+      "sourceType": "github",
+      "skillPath": "skills/grounded-writing/SKILL.md",
+      "computedHash": "bfaba831063e6cc8230054800a76dd9d3d52390650b32372da847c05c683e251"
+    },
+    "implement-with-subagents": {
+      "source": "chrisbanes/skills",
+      "sourceType": "github",
+      "skillPath": "skills/implement-with-subagents/SKILL.md",
+      "computedHash": "237637eb578dc35648d430ca23e7f4954125f5acce0259383b6b105202ccd409"
+    },
+    "kotlin-api-design": {
+      "source": "chrisbanes/skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-api-design/SKILL.md",
+      "computedHash": "53c9b84f7ccba756ed4d11d8072759b4afcd3aa2ef146c6068e7059dd51c55b2"
+    },
+    "kotlin-concurrency-and-flow": {
+      "source": "chrisbanes/skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-concurrency-and-flow/SKILL.md",
+      "computedHash": "c9459a8f443b08761efd62ba6bc956e60c159d6a9e05f8d8a9ba26e984ac4f04"
+    },
+    "kotlin-control-flow": {
+      "source": "chrisbanes/skills",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-control-flow/SKILL.md",
+      "computedHash": "a4a712ab56b83d077a9eb72edca80131403cb5b72e93ae6c313f23ab2b1d210f"
+    },
+    "run-github-project": {
+      "source": "chrisbanes/skills",
+      "sourceType": "github",
+      "skillPath": "skills/run-github-project/SKILL.md",
+      "computedHash": "7104a3de5270e5a1360e012dc0944a6cb83b228545fee33097bf30a653459657"
+    },
+    "shepherd": {
+      "source": "chrisbanes/skills",
+      "sourceType": "github",
+      "skillPath": "skills/shepherd/SKILL.md",
+      "computedHash": "ccb6ac5be5fad1b996736d09dbc507ea3565bf5d524123ffb0289669216f4718"
+    },
+    "to-plan": {
+      "source": "chrisbanes/skills",
+      "sourceType": "github",
+      "skillPath": "skills/to-plan/SKILL.md",
+      "computedHash": "f489070b39c195aa90b04fda8107772f62e7c4e5273df694b8e5af3c18cf01d8"
+    },
+    "using-chrisbanes-skills": {
+      "source": "chrisbanes/skills",
+      "sourceType": "github",
+      "skillPath": "skills/using-chrisbanes-skills/SKILL.md",
+      "computedHash": "27eb596c4293e077ed9914a2bbf4b54fa9ced9d5f1f870ce64509e555321ce37"
+    }
+  }
+}

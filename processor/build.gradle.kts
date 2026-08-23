@@ -1,23 +1,25 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
-    kotlin("jvm")
+    id("org.jetbrains.kotlin.jvm")
 }
 
-// project.ext.artifactId = bt_name
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
-}
+configureJdk(
+    "com.squareup.kotlinpoet.ksp.KotlinPoetKspPreview",
+    "kotlin.ExperimentalStdlibApi",
+    "com.squareup.kotlinpoet.javapoet.KotlinPoetJavaPoetPreview",
+    "com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview",
+)
 
 dependencies {
     api(project(":core"))
-    api(project(":contentprovider-annotations"))
-    api(Dependencies.JavaPoet)
-    api(Dependencies.KPoet)
-
-    compileOnly(Dependencies.JavaXAnnotation)
-    testImplementation(Dependencies.JUnit)
+    api(libs.javapoet)
+    api(project(":shared-model"))
+    api(libs.koin)
+    api(project(":kotlin-codegen"))
+    api(libs.kotlinpoet.metadata)
+    implementation(kotlin("reflect"))
+    compileOnly(libs.javax.annotation)
+    testImplementation(libs.junit)
+    testImplementation(libs.koin.test)
+    testImplementation(libs.mockito.kotlin)
+    testImplementation(kotlin("test"))
 }
-
-apply(from = "../kotlin-artifacts.gradle")
