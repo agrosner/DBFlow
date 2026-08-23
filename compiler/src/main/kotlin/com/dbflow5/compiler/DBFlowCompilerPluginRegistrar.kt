@@ -22,7 +22,14 @@ class DBFlowCompilerPluginRegistrar : CompilerPluginRegistrar() {
 
     override fun ExtensionStorage.registerExtensions(configuration: CompilerConfiguration) {
         val generatedDir = configuration.get(GENERATED_DIR_KEY)
+        val generateOnly =
+            configuration.get(MODE_KEY) == DBFlowCommandLineProcessor.MODE_GENERATE
         FirExtensionRegistrarAdapter.registerExtension(DBFlowFirExtensionRegistrar())
-        IrGenerationExtension.registerExtension(DBFlowIrGenerationExtension(generatedDir))
+        IrGenerationExtension.registerExtension(
+            DBFlowIrGenerationExtension(
+                generatedDir = generatedDir,
+                generateOnly = generateOnly,
+            )
+        )
     }
 }

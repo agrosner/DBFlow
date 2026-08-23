@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeTest
 
 plugins {
@@ -13,11 +12,6 @@ kotlin {
     macosArm64()
     iosArm64()
     iosSimulatorArm64()
-    targets.withType<KotlinNativeTarget>().configureEach {
-        binaries.all {
-            linkerOpts("-lsqlite3")
-        }
-    }
     android {
         namespace = "com.dbflow5.test"
         compileSdk = Versions.TargetSdk
@@ -55,15 +49,8 @@ kotlin {
             languageSettings.optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
             languageSettings.optIn("com.dbflow5.annotation.opts.InternalDBFlowApi")
         }
-        commonMain {
-            dependencies {
-                implementation(project(":lib"))
-            }
-        }
         commonTest {
-            kotlin.srcDir(layout.buildDirectory.dir("generated/dbflow/commonMain/kotlin"))
             dependencies {
-                implementation(project(":lib"))
                 implementation(kotlin("test"))
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.turbine)
@@ -115,29 +102,13 @@ kotlin {
     }
 }
 
+// The DBFlow plugin adds `com.dbflow5:lib` and `com.dbflow5:compiler` by
+// coordinates; inside this build they resolve to the local projects.
 configurations.configureEach {
-    if (name.startsWith("kotlinCompilerPluginClasspath")) {
-        dependencies.add(project.dependencies.project(mapOf("path" to ":compiler")))
+    resolutionStrategy.dependencySubstitution {
+        substitute(module("com.dbflow5:lib")).using(project(":lib"))
+        substitute(module("com.dbflow5:compiler")).using(project(":compiler"))
     }
-}
-
-tasks.matching {
-    it.name == "compileCommonMainKotlinMetadata" || it.name == "compileKotlinMetadata"
-}.configureEach {
-    outputs.dir(layout.buildDirectory.dir("generated/dbflow/commonMain/kotlin"))
-}
-
-tasks.matching { task ->
-    val name = task.name
-    (name.startsWith("compile") && name.contains("Kotlin") &&
-        name != "compileCommonMainKotlinMetadata" &&
-        name != "compileKotlinMetadata")
-}.configureEach {
-    dependsOn(
-        tasks.matching {
-            it.name == "compileCommonMainKotlinMetadata" || it.name == "compileKotlinMetadata"
-        }
-    )
 }
 
 

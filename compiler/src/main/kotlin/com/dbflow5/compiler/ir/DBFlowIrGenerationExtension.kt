@@ -16,10 +16,18 @@ import java.io.File
 
 internal class DBFlowIrGenerationExtension(
     private val generatedDir: String?,
+    /**
+     * Generation-only compilations discard their class output, so the createDB
+     * rewrite (which needs the not-yet-compiled generated database class) is
+     * skipped instead of failing resolution.
+     */
+    private val generateOnly: Boolean = false,
 ) : IrGenerationExtension {
 
     override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
-        CreateDbIrTransformer(pluginContext).transform(moduleFragment)
+        if (!generateOnly) {
+            CreateDbIrTransformer(pluginContext).transform(moduleFragment)
+        }
         CompanionPropertyIrTransformer(pluginContext).transform(moduleFragment)
         val output = File(
             generatedDir ?: System.getProperty(GENERATED_DIR_PROPERTY).orEmpty().ifEmpty { return }

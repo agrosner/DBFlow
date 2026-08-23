@@ -45,7 +45,7 @@ val db = createDB<AppDatabase> {
 }
 ```
 
-The compiler plugin rewrites `createDB` to the generated factory. Call it from a compilation that includes generated sources (see [install](including-in-project.md#generated-sources)).
+The compiler plugin rewrites `createDB` to the generated factory. The Gradle plugin's `dbflowGenerate` task runs before every compilation, so this works from `commonMain` (see [install](including-in-project.md#generated-sources)).
 
 `create` takes a `DBSettings` copy block: name, in-memory, journal mode, open helper, dispatchers.
 
@@ -82,4 +82,4 @@ class UserRepository(private val db: AppDatabase) {
 
 - Models can be `data class`es with `val` properties.
 - `@Table(allFields = true)` (default) maps every property. Mark the primary key. Use `@ColumnIgnore` to skip a property.
-- Same-module **main** code cannot reference `User` in the compilation that generates it. Put usage in tests or another module, or compile metadata first. See [install](including-in-project.md#generated-sources).
+- Main code sticks to `createDB`, `select from User`, and column properties — none of these name a generated type. Reference `*_Database` / `*_Adapter` types directly from tests or downstream modules. See [install](including-in-project.md#generated-sources).

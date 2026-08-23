@@ -27,7 +27,7 @@ A table belongs to one database. List it on `@Database` (preferred) or set `@Tab
 
 ## Open
 
-Call `createDB` — the compiler plugin rewrites it to the generated factory. Include generated sources in that compilation.
+Call `createDB` — the compiler plugin rewrites it to the generated factory. Works from `commonMain`; the Gradle plugin generates sources before compilation.
 
 ```kotlin
 // Android

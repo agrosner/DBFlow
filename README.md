@@ -55,15 +55,8 @@ See [Including in a project](usage2/including-in-project.md) for version catalog
 Quick start with a version catalog:
 
 ```toml
-[versions]
-dbflow = "5.0.0-alpha2"
-
-[libraries]
-dbflow-lib = { module = "com.dbflow5:lib", version.ref = "dbflow" }
-dbflow-compiler = { module = "com.dbflow5:compiler", version.ref = "dbflow" }
-
 [plugins]
-dbflow = { id = "com.dbflow5", version.ref = "dbflow" }
+dbflow = { id = "com.dbflow5", version = "5.0.0-alpha2" }
 ```
 
 ```kotlin
@@ -71,22 +64,12 @@ plugins {
     kotlin("multiplatform")
     alias(libs.plugins.dbflow)
 }
-
-kotlin {
-    sourceSets.named("commonMain") {
-        kotlin.srcDir(layout.buildDirectory.dir("generated/dbflow/commonMain/kotlin"))
-        dependencies {
-            implementation(libs.dbflow.lib)
-        }
-    }
-}
-
-configurations.configureEach {
-    if (name.startsWith("kotlinCompilerPluginClasspath")) {
-        dependencies.add(libs.dbflow.compiler.get())
-    }
-}
 ```
+
+That is the whole setup. The plugin adds the `com.dbflow5:lib` dependency, the
+compiler plugin, the generated-sources directory on `commonMain`, `-lsqlite3`
+linker opts for native binaries, and a `dbflowGenerate` task that keeps
+generated code in sync with your models.
 
 Until the plugin is on Maven Central, use a [composite build](usage2/including-in-project.md#from-this-repository) of this repo.
 
