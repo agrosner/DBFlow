@@ -3,8 +3,12 @@ package com.dbflow5.adapter
 import kotlin.reflect.KClass
 
 /**
- * Marker implemented by `@Table`, `@Query`, and `@ModelView` companions so
- * `select from User` and companion column properties resolve without a `*_Table` type.
+ * Implemented by generated `@Table`, `@Query`, and `@ModelView` companions.
+ *
+ * Each companion is also the runtime adapter (`ModelAdapter`, `ViewAdapter`, or
+ * `QueryAdapter`) via [ModelAdapterImpl], [ViewAdapterImpl], or [QueryAdapterImpl].
+ * That lets you use `User.name` column properties, `select from User`, and
+ * `userAdapter` interchangeably without a separate `*_Table` type or delegate object.
  */
 interface AdapterCompanion<Model : Any> {
 

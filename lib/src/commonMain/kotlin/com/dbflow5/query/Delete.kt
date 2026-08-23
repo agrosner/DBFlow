@@ -23,7 +23,7 @@ internal class DeleteImpl<Table : Any>(
 
     override val query: String by lazy {
         buildString {
-            append("DELETE FROM ${adapter.name} ")
+            append("DELETE FROM ${adapter.sqlName()} ")
         }
     }
 }

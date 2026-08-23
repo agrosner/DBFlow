@@ -172,7 +172,7 @@ internal data class SelectImpl<Table : Any, Result>(
     private val properties: List<AnyOperator> = emptyList(),
     override val adapter: DBRepresentable<Table>,
     private val tableAlias: NameAlias = NameAlias.Builder(
-        adapter.name
+        adapter.sqlName()
     ).build(),
     /**
      * Subquery instead of [tableAlias]

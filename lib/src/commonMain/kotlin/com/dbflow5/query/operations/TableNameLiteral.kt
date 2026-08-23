@@ -20,11 +20,11 @@ fun <Table : Any> WritableDBRepresentable<Table>.tableNameLiteral(): TableNameLi
 internal data class TableNameLiteralImpl<Table : Any>(
         private val sqlObjectAdapter: WritableDBRepresentable<Table>,
         override val valueConverter: SQLValueConverter<String> = inferValueConverter(),
-        override val nameAlias: NameAlias = NameAlias.builder(sqlObjectAdapter.name).build(),
+        override val nameAlias: NameAlias = NameAlias.builder(sqlObjectAdapter.sqlName()).build(),
 ) : TableNameLiteral<Table> {
-    override val query: String by lazy { sqlObjectAdapter.name }
+    override val query: String by lazy { sqlObjectAdapter.sqlName() }
 
-    override val value: String = sqlObjectAdapter.name
+    override val value: String = sqlObjectAdapter.sqlName()
 
     override fun `as`(
         name: String,

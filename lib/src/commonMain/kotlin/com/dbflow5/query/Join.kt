@@ -46,7 +46,7 @@ internal data class JoinImpl<OriginalTable : Any, JoinTable : Any, Result>(
     val onGroup: OperatorGrouping<Query>? = null,
     override val adapter: WritableDBRepresentable<JoinTable>,
     private val queryNameAlias: NameAlias? = null,
-    override val alias: NameAlias = queryNameAlias ?: NameAlias.Builder(adapter.name).build(),
+    override val alias: NameAlias = queryNameAlias ?: NameAlias.Builder(adapter.sqlName()).build(),
     override val using: List<Property<*, OriginalTable>> = listOf(),
 ) : Join<OriginalTable, JoinTable, Result>, JoinOn<OriginalTable, Result>,
     JoinWithAlias<OriginalTable, JoinTable, Result>,

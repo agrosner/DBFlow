@@ -50,12 +50,19 @@ class SQLCipherOpenHelper(
     override val isDatabaseIntegrityOk: Boolean
         get() = delegate.isDatabaseIntegrityOk
 
+    private var openedDatabase: SQLCipherDatabaseConnection? = null
+
     override val database: SQLCipherDatabaseConnection by databaseProperty {
         SQLCipherDatabaseConnection.from(getWritableDatabase(secret), generatedDatabase)
+            .also { openedDatabase = it }
     }
 
+    /**
+     * Reading [database] reopens a closed database, so ask the last opened
+     * connection instead.
+     */
     override val isOpen: Boolean
-        get() = database.isOpen
+        get() = openedDatabase?.isOpen ?: false
 
     override fun setWriteAheadLoggingEnabled(enabled: Boolean, connection: DatabaseConnection) {
         setWriteAheadLoggingEnabled(enabled)

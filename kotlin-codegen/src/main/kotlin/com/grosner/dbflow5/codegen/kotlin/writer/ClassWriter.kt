@@ -9,9 +9,11 @@ import com.grosner.dbflow5.codegen.kotlin.writer.classwriter.IndexPropertyWriter
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.NameAllocator
 
 /**
- * Writes adapter helpers. Column properties are extensions on [ClassNames.adapterCompanion].
+ * Writes adapter helpers used by plugin-generated model companions.
+ * Column properties on [ClassNames.adapterCompanion] are internal stand-ins for binders.
  */
 class ClassWriter(
     private val fieldPropertyWriter: FieldPropertyWriter,
@@ -26,6 +28,7 @@ class ClassWriter(
     private val propertyGetterWriter: PropertyGetterWriter,
     private val queryOpsWriter: QueryOpsWriter,
     private val creationSQLWriter: CreationSQLWriter,
+    private val nameAllocator: NameAllocator,
 ) : TypeCreator<ClassModel, FileSpec> {
 
     override fun create(model: ClassModel): FileSpec {
@@ -49,6 +52,7 @@ class ClassWriter(
                     addFunction(tableOpsWriter.create(model))
                 }
                 addFunction(classAdapterWriter.create(model))
+                addProperty(companionOpsProperty(model, nameAllocator, referencesCache))
                 addType(adapterCompanionFileObject(model.classType))
                 val companionReceiver = ClassNames.adapterCompanion(model.classType)
                 val propertyVisibility = if (model.isInternal) {

@@ -62,6 +62,12 @@ data class ClassModel(
         nullable = false,
     )
 
+    fun adapterFactorySuffix(): String = when (type) {
+        is Type.Table -> "adapter"
+        is Type.View -> "viewAdapter"
+        is Type.Query -> "queryAdapter"
+    }
+
     fun generatedAdapterName(nameAllocator: NameAllocator): NameModel {
         return NameModel(
             packageName = name.packageName,

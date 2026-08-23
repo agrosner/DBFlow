@@ -77,9 +77,19 @@ class DBFlowGradlePlugin : KotlinCompilerPluginSupportPlugin {
 
     private fun Project.configureMultiplatform() {
         val kotlinExtension = extensions.getByType(KotlinMultiplatformExtension::class.java)
+        val generateTask = registerGenerateTask(
+            modelSourceSetName = "commonMain",
+            dependencyScopes = listOf(
+                "commonMainImplementation",
+                "commonMainApi",
+                "commonMainCompileOnly",
+            ),
+        )
         val generated = generatedDir()
         kotlinExtension.sourceSets.named("commonMain") {
-            kotlin.srcDir(generated)
+            // Mapping through the task provider carries the task dependency to
+            // every compilation that consumes the generated sources.
+            kotlin.srcDir(generateTask.map { generated.get() })
             dependencies {
                 implementation("$GROUP:$LIB_ARTIFACT:$VERSION")
             }
@@ -89,27 +99,19 @@ class DBFlowGradlePlugin : KotlinCompilerPluginSupportPlugin {
                 linkerOpts(SQLITE_LINKER_OPT)
             }
         }
-        registerGenerateTask(
-            modelSourceSetName = "commonMain",
-            dependencyScopes = listOf(
-                "commonMainImplementation",
-                "commonMainApi",
-                "commonMainCompileOnly",
-            ),
-        )
     }
 
     private fun Project.configureSingleTarget() {
         val kotlinExtension = extensions.getByType(KotlinProjectExtension::class.java)
-        val generated = generatedDir()
-        kotlinExtension.sourceSets.named("main") {
-            kotlin.srcDir(generated)
-        }
-        dependencies.add("implementation", "$GROUP:$LIB_ARTIFACT:$VERSION")
-        registerGenerateTask(
+        val generateTask = registerGenerateTask(
             modelSourceSetName = "main",
             dependencyScopes = listOf("implementation", "api", "compileOnly"),
         )
+        val generated = generatedDir()
+        kotlinExtension.sourceSets.named("main") {
+            kotlin.srcDir(generateTask.map { generated.get() })
+        }
+        dependencies.add("implementation", "$GROUP:$LIB_ARTIFACT:$VERSION")
     }
 
     /**
@@ -121,7 +123,7 @@ class DBFlowGradlePlugin : KotlinCompilerPluginSupportPlugin {
     private fun Project.registerGenerateTask(
         modelSourceSetName: String,
         dependencyScopes: List<String>,
-    ) {
+    ): org.gradle.api.tasks.TaskProvider<JavaExec> {
         val runnerClasspath = configurations.create("dbflowCompilerRunner") {
             isCanBeConsumed = false
             defaultDependencies {
@@ -210,11 +212,7 @@ class DBFlowGradlePlugin : KotlinCompilerPluginSupportPlugin {
                 }
             )
         }
-        tasks.matching { task ->
-            task.name.startsWith("compile") && task.name.contains("Kotlin")
-        }.configureEach {
-            dependsOn(generateTask)
-        }
+        return generateTask
     }
 
     private fun Project.kotlinSourceSet(name: String): KotlinSourceSet? =

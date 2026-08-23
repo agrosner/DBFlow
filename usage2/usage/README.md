@@ -4,7 +4,8 @@ You work with three generated pieces:
 
 1. **`{Db}_Database`** — `DBCreator` plus the concrete `DBFlowDatabase`
 2. **Adapters** — `userAdapter.save()`, `userAdapter.select()`
-3. **Model companions** — `User.name` in `where` / `set`, and `select from User`
+3. **Model companions** — `User.name` in `where` / `set`, `select from User`, and
+   the runtime adapter (`userAdapter` is `User.Companion as ModelAdapter<User>`)
 
 ```kotlin
 db.writableTransaction {

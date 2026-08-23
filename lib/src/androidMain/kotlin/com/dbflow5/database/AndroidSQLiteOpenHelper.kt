@@ -30,15 +30,21 @@ class AndroidSQLiteOpenHelper(
 
     private val _databaseName = generatedDatabase.databaseFileName
 
+    private var openedDatabase: AndroidDatabase? = null
+
     override val database: AndroidDatabase by databaseProperty {
         AndroidDatabase.from(
             writableDatabase,
             generatedDatabase
-        )
+        ).also { openedDatabase = it }
     }
 
+    /**
+     * [SQLiteOpenHelper.getWritableDatabase] reopens a closed database, so ask
+     * the last opened connection instead of the helper.
+     */
     override val isOpen: Boolean
-        get() = writableDatabase.isOpen
+        get() = openedDatabase?.isOpen ?: false
 
     override fun setWriteAheadLoggingEnabled(enabled: Boolean, connection: DatabaseConnection) {
         setWriteAheadLoggingEnabled(enabled)

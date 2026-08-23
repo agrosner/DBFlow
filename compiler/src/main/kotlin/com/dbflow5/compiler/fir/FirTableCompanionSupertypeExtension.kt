@@ -4,17 +4,17 @@ import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.declarations.FirClass
 import org.jetbrains.kotlin.fir.declarations.FirClassLikeDeclaration
+import org.jetbrains.kotlin.fir.declarations.hasAnnotationSafe
 import org.jetbrains.kotlin.fir.extensions.FirDeclarationPredicateRegistrar
 import org.jetbrains.kotlin.fir.extensions.FirSupertypeGenerationExtension
 import org.jetbrains.kotlin.fir.plugin.createConeType
 import org.jetbrains.kotlin.fir.resolve.defaultType
 import org.jetbrains.kotlin.fir.resolve.providers.symbolProvider
+import org.jetbrains.kotlin.fir.symbols.SymbolInternals
 import org.jetbrains.kotlin.fir.symbols.impl.FirClassSymbol
 import org.jetbrains.kotlin.fir.types.ConeClassLikeType
 import org.jetbrains.kotlin.fir.types.ConeKotlinType
 import org.jetbrains.kotlin.fir.types.FirResolvedTypeRef
-import org.jetbrains.kotlin.fir.types.coneType
-import org.jetbrains.kotlin.name.SpecialNames
 
 internal class FirTableCompanionSupertypeExtension(
     session: FirSession,
@@ -26,7 +26,7 @@ internal class FirTableCompanionSupertypeExtension(
 
     override fun needTransformSupertypes(declaration: FirClassLikeDeclaration): Boolean {
         val firClass = declaration as? FirClass ?: return false
-        if (!firClass.isCompanionObject()) return false
+        if (!firClass.symbol.isPluginGeneratedCompanion()) return false
         val ownerId = firClass.symbol.classId.outerClassId ?: return false
         val owner = session.symbolProvider.getClassLikeSymbolByClassId(ownerId) as? FirClassSymbol<*>
             ?: return false
@@ -41,21 +41,19 @@ internal class FirTableCompanionSupertypeExtension(
         val ownerId = classLikeDeclaration.symbol.classId.outerClassId ?: return emptyList()
         val owner = session.symbolProvider.getClassLikeSymbolByClassId(ownerId) as? FirClassSymbol<*>
             ?: return emptyList()
-        val alreadyHas = resolvedSupertypes.any { typeRef ->
+        val additional = mutableListOf<ConeKotlinType>()
+        val alreadyHasAdapterCompanion = resolvedSupertypes.any { typeRef ->
             typeRef.coneType.classId == DbFlowClassIds.AdapterCompanion
         }
-        if (alreadyHas) return emptyList()
-        return listOf(
-            DbFlowClassIds.AdapterCompanion.createConeType(
+        if (!alreadyHasAdapterCompanion) {
+            additional += DbFlowClassIds.AdapterCompanion.createConeType(
                 session,
                 arrayOf(owner.defaultType()),
             )
-        )
+        }
+        return additional
     }
 }
-
-private fun FirClass.isCompanionObject(): Boolean =
-    classKind == ClassKind.OBJECT && symbol.name == SpecialNames.DEFAULT_NAME_FOR_COMPANION_OBJECT
 
 private val ConeKotlinType.classId
     get() = (this as? ConeClassLikeType)?.lookupTag?.classId

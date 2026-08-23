@@ -25,6 +25,8 @@ internal class LazyDBRepresentable<T : Any>(
         get() = realAdapter.type
     override val name: String
         get() = realAdapter.name
+
+    override fun sqlName(): String = realAdapter.sqlName()
     override val creationSQL: CompilableQuery
         get() = realAdapter.creationSQL
     override val createWithDatabase: Boolean

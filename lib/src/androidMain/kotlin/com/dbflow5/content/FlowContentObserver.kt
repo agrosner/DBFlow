@@ -114,7 +114,7 @@ class FlowContentObserver(
         adapter: ModelAdapter<*>,
     ) {
         val uri = ContentNotification.TableChange(
-            tableName = adapter.name,
+            tableName = adapter.sqlName(),
             action = ChangeAction.NONE,
             authority = contentAuthority
         )

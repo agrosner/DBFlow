@@ -27,14 +27,14 @@ import org.koin.dsl.module
 val codeGenModule = module {
     single { NameAllocator() }
     single { InlineTypeConverterWriter(get()) }
-    single { ManyToManyClassWriter(get()) }
-    single { OneToManyClassWriter(get()) }
+    single { ManyToManyClassWriter(get(), get(), get()) }
+    single { OneToManyClassWriter(get(), get(), get()) }
     single { IndexPropertyWriter(get()) }
     single {
         ClassWriter(
             get(), get(), get(), get(), get(),
             get(), get(), get(), get(),
-            get(), get(), get(),
+            get(), get(), get(), get(),
         )
     }
     single { DatabaseWriter(get(), get(), get()) }
@@ -42,13 +42,13 @@ val codeGenModule = module {
     single { DatabaseHolderWriter(get(), get(), get()) }
     single { TableSQLWriter(get(), get()) }
     single { TableBinderWriter(get(), get(), get()) }
-    single { PrimaryModelClauseWriter(get(), get()) }
+    single { PrimaryModelClauseWriter(get(), get(), get()) }
     single { AutoIncrementUpdateWriter(get()) }
-    single { TableOpsWriter(get(), get()) }
+    single { TableOpsWriter(get(), get(), get()) }
     single { ClassAdapterWriter(get(), get(), get()) }
-    single { PropertyGetterWriter(get(), get()) }
+    single { PropertyGetterWriter(get(), get(), get()) }
     single { QueryOpsWriter(get(), get(), get()) }
-    single { CreationSQLWriter(get(), get(), get(), get()) }
+    single { CreationSQLWriter(get(), get(), get(), get(), get()) }
 
     single {
         ObjectWriter(

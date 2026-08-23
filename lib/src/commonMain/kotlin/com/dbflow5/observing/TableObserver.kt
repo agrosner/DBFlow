@@ -253,7 +253,7 @@ class TableObserver<DB : DBFlowDatabase<DB>> internal constructor(
             // utilize raw query, since we're using dynamic tables not supported by query language.
             db.execute(
                 "CREATE TEMP TRIGGER IF NOT EXISTS ${getTriggerName(adapter, method)} " +
-                    "AFTER $method ON ${adapter.name.quoteIfNeeded()} " +
+                    "AFTER $method ON ${adapter.sqlName().quoteIfNeeded()} " +
                     "BEGIN UPDATE $TABLE_OBSERVER_NAME " +
                     "SET $INVALIDATED_COLUMN_NAME = 1 " +
                     "WHERE $TABLE_ID_COLUMN_NAME = $tableId " +
@@ -270,7 +270,7 @@ class TableObserver<DB : DBFlowDatabase<DB>> internal constructor(
     }
 
     private fun getTriggerName(adapter: DBRepresentable<*>, method: String) =
-        "`${TRIGGER_PREFIX}_${adapter.name.stripQuotes()}_$method`"
+        "`${TRIGGER_PREFIX}_${adapter.sqlName().stripQuotes()}_$method`"
 
     companion object {
 

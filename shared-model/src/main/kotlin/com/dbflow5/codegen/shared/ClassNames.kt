@@ -2,7 +2,10 @@ package com.dbflow5.codegen.shared
 
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.STAR
 import com.squareup.kotlinpoet.TypeName
+import com.squareup.kotlinpoet.asTypeName
+import kotlin.reflect.KClass
 
 object ClassNames {
 
@@ -61,6 +64,15 @@ object ClassNames {
     fun viewAdapter2(viewTypeName: TypeName) = ClassName(PackageNames.Adapter, "ViewAdapter")
         .parameterizedBy(viewTypeName)
 
+    fun modelAdapterImpl2(tableTypeName: TypeName) = ClassName(PackageNames.Adapter, "ModelAdapterImpl")
+        .parameterizedBy(tableTypeName)
+
+    fun viewAdapterImpl2(viewTypeName: TypeName) = ClassName(PackageNames.Adapter, "ViewAdapterImpl")
+        .parameterizedBy(viewTypeName)
+
+    fun queryAdapterImpl2(queryTypeName: TypeName) = ClassName(PackageNames.Adapter, "QueryAdapterImpl")
+        .parameterizedBy(queryTypeName)
+
     fun tableOps(tableTypeName: TypeName) = ClassName(PackageNames.Adapter, "TableOps")
         .parameterizedBy(tableTypeName)
 
@@ -70,8 +82,19 @@ object ClassNames {
         ClassName(PackageNames.Adapter, "AdapterCompanion")
             .parameterizedBy(typeName)
 
+    fun companionObject(modelType: ClassName): ClassName = modelType.nestedClass("Companion")
+
     fun generatedAdapterCompanion(modelType: ClassName): ClassName =
         ClassName(modelType.packageName, "${modelType.simpleName}_AdapterCompanion")
+
+    fun tableCompanionBase(modelType: ClassName): ClassName =
+        ClassName(modelType.packageName, "${modelType.simpleName}CompanionBase")
+
+    fun viewCompanionBase(modelType: ClassName): ClassName =
+        ClassName(modelType.packageName, "${modelType.simpleName}ViewCompanionBase")
+
+    fun queryCompanionBase(modelType: ClassName): ClassName =
+        ClassName(modelType.packageName, "${modelType.simpleName}QueryCompanionBase")
 
     fun tableBinder(tableTypeName: TypeName) = ClassName(PackageNames.Adapter, "TableBinder")
         .parameterizedBy(tableTypeName)
@@ -83,6 +106,11 @@ object ClassNames {
         PackageNames.Adapter,
         "QueryOps"
     ).parameterizedBy(classType)
+
+    fun baseOperatorSingleValueStar(): com.squareup.kotlinpoet.TypeName =
+        ClassName(PackageNames.QueryOperations, "BaseOperator")
+            .nestedClass("SingleValueOperator")
+            .parameterizedBy(STAR)
 
     val DBFlowDatabase = ClassName(PackageNames.Database, "DBFlowDatabase")
     val GeneratedDatabaseHolderFactory =

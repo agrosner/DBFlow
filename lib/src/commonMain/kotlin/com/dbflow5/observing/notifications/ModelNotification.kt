@@ -19,7 +19,7 @@ sealed interface ModelNotification<Table : Any> {
         override val action: ChangeAction,
     ) : ModelNotification<Table> {
         override fun print(): String {
-            return "TableChange (${action.name}): ${adapter.name}"
+            return "TableChange (${action.name}): ${adapter.sqlName()}"
         }
     }
 
@@ -39,7 +39,7 @@ sealed interface ModelNotification<Table : Any> {
         )
 
         override fun print(): String {
-            return "ModelChange (${action.name}): ${adapter.name} changedFields: ${
+            return "ModelChange (${action.name}): ${adapter.sqlName()} changedFields: ${
                 changedFields.joinToString {
                     it.query
                 }

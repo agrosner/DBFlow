@@ -1,12 +1,14 @@
 package com.grosner.dbflow5.codegen.kotlin.writer
 
 import com.dbflow5.codegen.shared.OneToManyModel
+import com.dbflow5.codegen.shared.cache.ReferencesCache
 import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
 import com.dbflow5.codegen.shared.writer.TypeCreator
 import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.ParameterPropertySpec
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.NameAllocator
 import com.squareup.kotlinpoet.TypeSpec
 
 /**
@@ -14,6 +16,8 @@ import com.squareup.kotlinpoet.TypeSpec
  */
 class OneToManyClassWriter(
     private val originatingFileTypeSpecAdder: OriginatingFileTypeSpecAdder,
+    private val nameAllocator: NameAllocator,
+    private val referencesCache: ReferencesCache,
 ) : TypeCreator<OneToManyModel, FileSpec> {
 
     override fun create(model: OneToManyModel): FileSpec {
@@ -45,7 +49,13 @@ class OneToManyClassWriter(
                         }
                         addModifiers(KModifier.DATA)
                         addProperties(paramProperties.map { it.propertySpec })
-                        addType(adapterCompanionObject(classModel.classType))
+                        addType(
+                            junctionModelCompanion(
+                                classModel.classType,
+                                classModel.generatedSuperClass,
+                                adapterFactoryCall(classModel, nameAllocator, referencesCache),
+                            ),
+                        )
                     }
                     .build()
                 )

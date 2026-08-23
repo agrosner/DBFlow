@@ -7,16 +7,19 @@ import com.dbflow5.codegen.shared.distinctAdapterGetters
 import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
 import com.dbflow5.codegen.shared.writer.TypeCreator
 import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.NameAllocator
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.LambdaTypeName
 
 class TableOpsWriter(
+    private val nameAllocator: NameAllocator,
     private val referencesCache: ReferencesCache,
     private val originatingFileTypeSpecAdder: OriginatingFileTypeSpecAdder,
 ) : TypeCreator<ClassModel, FunSpec> {
 
     override fun create(model: ClassModel): FunSpec {
         val shortName = model.generatedFieldName
+        val adapterKey = model.adapterSymbol(nameAllocator)
         val adapters = model.distinctAdapterGetters(referencesCache)
         return FunSpec.builder(
             "${shortName}_ops",
@@ -37,7 +40,7 @@ class TableOpsWriter(
                     "return %T(table = ${model.classType}::class, " +
                         "tableSQL = ${shortName}_sql, " +
                         "tableBinder = ${shortName}_tableBinder, " +
-                        "primaryModelClauseGetter = ${shortName}_primaryModelClauseGetter, " +
+                        "primaryModelClauseGetter = ${adapterKey}_primaryModelClauseGetter, " +
                         "autoIncrementUpdater = ${shortName}_autoIncrementUpdater, " +
                         "queryOps = ${shortName}_queryOps(${adapters.joinToString { "%L" }})," +
                         "notifyChanges = %L)",

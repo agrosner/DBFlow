@@ -2,7 +2,7 @@ package com.dbflow5.test.adapter
 
 import com.dbflow5.adapter.AutoIncrementUpdater
 import com.dbflow5.adapter.CompilableQuery
-import com.dbflow5.adapter.ModelAdapter
+import com.dbflow5.adapter.ModelAdapterImpl
 import com.dbflow5.adapter.PrimaryModelClauseGetter
 import com.dbflow5.adapter.QueryOps
 import com.dbflow5.adapter.TableBinder
@@ -65,7 +65,7 @@ class TableOpsTest {
     }
 
     private val queryOps = mock<QueryOps<Any>>()
-    private lateinit var mockModelAdapter: ModelAdapter<Any>
+    private lateinit var mockModelAdapter: ModelAdapterImpl<Any>
 
     private lateinit var ops: TableOps<Any>
 
@@ -83,11 +83,11 @@ class TableOpsTest {
             notifyChanges = true,
         )
 
-        mockModelAdapter = ModelAdapter(
+        mockModelAdapter = ModelAdapterImpl(
             table = Any::class,
             ops = ops,
             propertyGetter = mock(),
-            name = "Mock",
+            tableSqlName = "Mock",
             creationSQL = CompilableQuery(""),
             createWithDatabase = false,
             primaryModelClauseGetter = mock(),

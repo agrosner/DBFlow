@@ -13,7 +13,14 @@ data class User(
 
 Register it on `@Database(tables = [User::class])`.
 
-Generated: `User` (properties) and a `ModelAdapter<User>` you expose as an abstract `val` on the database.
+Generated:
+
+- **`User.Companion`** — column properties (`User.name`), `select from User`, and the
+  `ModelAdapter<User>` used at runtime (`User.Companion as ModelAdapter<User>`)
+- **`User_Adapter.kt`** — internal helpers (`TableOps`, binders, property getters) wired into the companion
+- **`userAdapter`** — abstract `val` on your database class; the generated `create()` passes the companion
+
+You do not reference `*_Table` types or adapter delegate objects in app code.
 
 ## Columns
 
@@ -99,3 +106,32 @@ data class Scratch(@PrimaryKey val id: Int)
 ## Constructor
 
 A no-arg constructor is required for codegen. `data class` properties need defaults when they are not nullable, or supply a secondary constructor. `val` properties are fine.
+
+## Model companions
+
+The compiler plugin adds a companion object to each `@Table`, `@ModelView`, and `@Query` class:
+
+```kotlin
+@Table
+data class User(@PrimaryKey val id: Int, val name: String)
+
+// Generated conceptually:
+// companion object : ModelAdapterImpl<User>(), AdapterCompanion<User> {
+//     val name: PropertyStart<String, User>  // column property
+// }
+```
+
+Use `User.name` in `where`, `set`, and `insert` clauses. Use `userAdapter` (or
+`User.Companion as ModelAdapter<User>`) for `save`, `select`, and other adapter
+operations. Both refer to the same runtime object.
+
+`@Query` and `@ModelView` companions extend `QueryAdapterImpl` and
+`ViewAdapterImpl` respectively.
+
+### `DBRepresentable.name` vs column `name`
+
+`DBRepresentable.name` is the quoted SQL table or view name (for example `` `User` ``).
+When a column is also called `name`, read the table name with `sqlName()` if you
+are working with a raw `DBRepresentable` reference. Query DSL code uses
+`sqlName()` internally, so `userAdapter.createIndexOn(…, User.name)` and similar
+calls behave as expected.

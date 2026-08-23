@@ -36,7 +36,7 @@ db.writableTransaction {
 | --- | --- |
 | `lib` | Runtime, query DSL, transactions, `Flow` observers |
 | `core` | Annotations and converters (pulled in by `lib`) |
-| `compiler` + plugin `com.dbflow5` | Adds table companions, `*_Adapter` helpers, and `*_Database` |
+| `compiler` + plugin `com.dbflow5` | Table companions (adapters + column properties), `*_Adapter` helpers, `*_Database` |
 | `sqlcipher` | Encrypted Android databases |
 | `livedata` / `paging` / `reactive-streams` | Android extras |
 

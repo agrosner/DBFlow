@@ -85,7 +85,7 @@ the plugin registers a `dbflowGenerate` task: it compiles the model sources
 with the DBFlow compiler plugin, keeps the generated Kotlin, and discards the
 class output. Every Kotlin compilation runs after it, so main source sets —
 and main artifacts — contain the generated adapters, `*_Database` classes, and
-column extension properties.
+companion column properties.
 
 Practical notes:
 

@@ -2,11 +2,12 @@ package com.dbflow5.test.config
 
 import com.dbflow5.database.createDB
 import com.dbflow5.test.TestDatabase
+import com.dbflow5.test.TestRule
 import com.dbflow5.test.helpers.platformSettings
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class CreateDBTest {
+class CreateDBTest : TestRule() {
 
     @Test
     fun createDB_opensGeneratedDatabase() {

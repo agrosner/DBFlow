@@ -4,7 +4,6 @@ import com.dbflow5.codegen.shared.ClassModel
 import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.codegen.shared.DatabaseModel
 import com.dbflow5.codegen.shared.cache.ReferencesCache
-import com.dbflow5.codegen.shared.distinctAdapterGetters
 import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
 import com.dbflow5.codegen.shared.writer.TypeCreator
 import com.dbflow5.stripQuotes
@@ -201,47 +200,30 @@ class DatabaseWriter(
                     ClassNames.DBSettings,
                     model.name.shortName,
                 )
-                adapters.forEach { obj ->
-                    val name = nameAllocator[obj.generatedClassName]
-                    val adapterGetters = obj.distinctAdapterGetters(referencesCache)
-                    addStatement(
-                        "val %N = %M(${adapterGetters.joinToString { "%N = { %N }" }})",
-                        name,
-                        obj.generatedAdapterName(nameAllocator).memberName,
-                        *adapterGetters.map {
-                            "${it.generatedFieldName}Getter" to nameAllocator[it.generatedClassName]
-                        }
-                            .fold(mutableListOf<String>()) { acc, (x, y) ->
-                                acc.apply {
-                                    add(x)
-                                    add(y)
-                                }
-                            }
-                            .toTypedArray(),
-                    )
-                }
                 if (adapters.isNotEmpty()) {
-                    addStatement(
-                        "%T.registerAdapters(${adapters.joinToString { "%N" }})",
-                        ClassNames.DatabaseObjectLookup,
-                        *adapters.map { nameAllocator[it.generatedClassName] }.toTypedArray(),
-                    )
+                    add("%T.registerAdapters(", ClassNames.DatabaseObjectLookup)
+                    adapters.forEachIndexed { index, obj ->
+                        if (index > 0) {
+                            add(", ")
+                        }
+                        add(
+                            "%T.Companion as %T",
+                            obj.classType,
+                            obj.generatedSuperClass,
+                        )
+                    }
+                    add(")\n")
                 }
-                addStatement(
-                    "return %T(settings, ${model.adapterFields.joinToString { "_%L = %N" }})",
-                    model.generatedClassName.className,
-                    *model.adapterFields
-                        .map { fieldModel ->
-                            fieldModel.name.shortName to nameAllocator[fieldModel.associatedClassModel.generatedClassName]
-                        }
-                        .fold(mutableListOf<String>()) { acc, (x, y) ->
-                            acc.apply {
-                                add(x)
-                                add(y)
-                            }
-                        }
-                        .toTypedArray(),
-                )
+                add("return %T(settings", model.generatedClassName.className)
+                model.adapterFields.forEach { fieldModel ->
+                        add(
+                            ", _%L = %T.Companion as %T",
+                            fieldModel.name.shortName,
+                            fieldModel.associatedClassModel.classType,
+                            fieldModel.adapterTypeName,
+                        )
+                }
+                add(")\n")
             }
             .build()
     }

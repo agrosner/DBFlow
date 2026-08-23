@@ -12,6 +12,12 @@ interface DBRepresentable<DBType : Any> : QueryRepresentable<DBType> {
 
     val name: String
 
+    /**
+     * SQL table/view name for query building. Prefer this over [name] when the
+     * adapter may be a generated companion with identically-named column properties.
+     */
+    fun sqlName(): String = name
+
     val createWithDatabase: Boolean
 
     val creationSQL: CompilableQuery

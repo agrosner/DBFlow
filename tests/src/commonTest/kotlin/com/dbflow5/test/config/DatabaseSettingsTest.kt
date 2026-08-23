@@ -6,6 +6,7 @@ import com.dbflow5.database.transaction.TransactionDispatcherFactory
 import com.dbflow5.observing.notifications.ModelNotifier
 import com.dbflow5.observing.notifications.ModelNotifierFactory
 import com.dbflow5.test.TestDatabase_Database
+import com.dbflow5.test.TestRule
 import com.dbflow5.test.fakes.FakeOpenHelper
 import com.dbflow5.test.helpers.platformSettings
 import com.dbflow5.transaction.TransactionDispatcher
@@ -14,7 +15,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 
-class DatabaseSettingsTest {
+class DatabaseSettingsTest : TestRule() {
 
     @Test
     fun test_databaseConfig() {

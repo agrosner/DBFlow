@@ -189,7 +189,7 @@ internal data class InsertImpl<Table : Any>(
             if (conflictAction != ConflictAction.NONE) {
                 append("OR $conflictAction ")
             }
-            append("INTO ${adapter.name}")
+            append("INTO ${adapter.sqlName()}")
             columns
                 ?.takeIf { it.isNotEmpty() }
                 ?.let { propList ->
@@ -200,7 +200,7 @@ internal data class InsertImpl<Table : Any>(
             } else {
                 if (values.isEmpty()) {
                     throw IllegalStateException(
-                        "The insert of ${adapter.name} " +
+                        "The insert of ${adapter.sqlName()} " +
                             "should have at least one value specified for the insert"
                     )
                 } else {
@@ -232,7 +232,7 @@ internal data class InsertImpl<Table : Any>(
     override fun values(vararg values: Any): InsertWithValues<Table> {
         if (columns != null && columns.size != values.size) {
             throw IllegalStateException(
-                """The Insert of ${adapter.name}
+                """The Insert of ${adapter.sqlName()}
                 |when specifying columns needs to have the same amount
                 |of values and columns. found ${columns.size} != ${values.size}""".trimMargin()
             )

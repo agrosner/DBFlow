@@ -7,12 +7,12 @@ fun <Table : Any> ModelNotification<Table>.toContentNotification(
 ): ContentNotification = when (this) {
     is ModelNotification.ModelChange<Table> -> ContentNotification.ModelChange<Table>(
         changedFields = changedFields,
-        tableName = adapter.name,
+        tableName = adapter.sqlName(),
         action = action,
         authority = authority,
     )
     is ModelNotification.TableChange<Table> -> ContentNotification.TableChange(
-        tableName = adapter.name,
+        tableName = adapter.sqlName(),
         action = action,
         authority = authority,
     )

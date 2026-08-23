@@ -46,7 +46,7 @@ sealed interface ContentNotification {
             action: ChangeAction,
             authority: String,
         ) : this(
-            tableName = adapter.name,
+            tableName = adapter.sqlName(),
             action = action,
             authority = authority,
             changedFields = adapter.getPrimaryModelClause(

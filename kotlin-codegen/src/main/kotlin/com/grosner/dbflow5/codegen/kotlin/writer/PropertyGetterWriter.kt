@@ -9,18 +9,20 @@ import com.dbflow5.quoteIfNeeded
 import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.MemberNames
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.NameAllocator
 import com.squareup.kotlinpoet.PropertySpec
 
 class PropertyGetterWriter(
+    private val nameAllocator: NameAllocator,
     private val referencesCache: ReferencesCache,
     private val originatingFileTypeSpecAdder: OriginatingFileTypeSpecAdder,
 ) : TypeCreator<ClassModel, PropertySpec> {
 
     override fun create(model: ClassModel): PropertySpec =
         PropertySpec.builder(
-            "${model.generatedFieldName}_propertyGetter",
+            "${model.adapterSymbol(nameAllocator)}_propertyGetter",
             ClassNames.propertyGetter(model.classType),
-            KModifier.PRIVATE,
+            KModifier.INTERNAL,
         )
             .apply {
                 model.originatingSource?.let {

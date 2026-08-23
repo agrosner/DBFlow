@@ -1,5 +1,6 @@
 package com.dbflow5.compiler.ir
 
+import com.dbflow5.codegen.shared.ClassModel
 import com.dbflow5.codegen.shared.validation.ValidationException
 import com.dbflow5.compiler.CompilerModule
 import com.grosner.dbflow5.codegen.kotlin.writer.ObjectWriter
@@ -28,13 +29,57 @@ internal class DBFlowIrGenerationExtension(
         if (!generateOnly) {
             CreateDbIrTransformer(pluginContext).transform(moduleFragment)
         }
-        CompanionPropertyIrTransformer(pluginContext).transform(moduleFragment)
-        val output = File(
-            generatedDir ?: System.getProperty(GENERATED_DIR_PROPERTY).orEmpty().ifEmpty { return }
-        )
-        if (moduleFragment.compilesGeneratedSources(output)) return
-        output.mkdirs()
 
+        val classes = collectDbFlowClasses(moduleFragment)
+        val output = File(
+            generatedDir ?: System.getProperty(GENERATED_DIR_PROPERTY).orEmpty().ifEmpty { "" }
+        )
+        val skipWriter = output.path.isNotEmpty() && moduleFragment.compilesGeneratedSources(output)
+
+        if (classes.isEmpty()) {
+            CompanionPropertyIrTransformer(pluginContext).transform(moduleFragment)
+            return
+        }
+
+        val known = classes.associateBy { irClass -> irClass.toPoetClassName() }
+        val resolver = IrClassNameResolver(pluginContext, known)
+        val koinApp = koinApplication {
+            modules(CompilerModule.modules())
+        }
+        val koin: Koin = koinApp.koin
+        try {
+            val parser = koin.get<IrClassParser>()
+            val fieldSanitizer = koin.get<com.dbflow5.codegen.shared.parser.FieldSanitizer>()
+            fieldSanitizer.applyResolver(resolver)
+            val models = classes.flatMap { parser.parse(it) }
+            val classModels = models.filterIsInstance<ClassModel>()
+            val writer = koin.get<ObjectWriter>()
+            if (!skipWriter && models.isNotEmpty() && output.path.isNotEmpty()) {
+                output.mkdirs()
+                writer.write(resolver, models) { fileSpec ->
+                    fileSpec.writeTo(output)
+                }
+            } else if (skipWriter && classModels.isNotEmpty()) {
+                writer.prepareAllocation(classModels)
+            }
+            CompanionPropertyIrTransformer(pluginContext).transform(moduleFragment)
+            if (classModels.isNotEmpty()) {
+                val nameAllocator = koin.get<com.squareup.kotlinpoet.NameAllocator>()
+                CompanionAdapterIrTransformer(pluginContext, moduleFragment, classModels, nameAllocator)
+                    .transform(moduleFragment)
+            }
+            if (skipWriter || models.isEmpty()) return
+        } catch (exception: ValidationException) {
+            pluginContext.messageCollector.report(
+                CompilerMessageSeverity.ERROR,
+                exception.message ?: exception.toString(),
+            )
+        } finally {
+            koinApp.close()
+        }
+    }
+
+    private fun collectDbFlowClasses(moduleFragment: IrModuleFragment): List<IrClass> {
         val classes = mutableListOf<IrClass>()
         fun collect(declaration: IrDeclaration) {
             if (declaration is IrClass) {
@@ -47,32 +92,7 @@ internal class DBFlowIrGenerationExtension(
         moduleFragment.files.forEach { file ->
             file.declarations.forEach(::collect)
         }
-        if (classes.isEmpty()) return
-
-        val known = classes.associateBy { irClass -> irClass.toPoetClassName() }
-        val resolver = IrClassNameResolver(pluginContext, known)
-        val koinApp = koinApplication {
-            modules(CompilerModule.modules())
-        }
-        val koin: Koin = koinApp.koin
-        try {
-            val parser = koin.get<IrClassParser>()
-            val writer = koin.get<ObjectWriter>()
-            val fieldSanitizer = koin.get<com.dbflow5.codegen.shared.parser.FieldSanitizer>()
-            fieldSanitizer.applyResolver(resolver)
-            val models = classes.flatMap { parser.parse(it) }
-            if (models.isEmpty()) return
-            writer.write(resolver, models) { fileSpec ->
-                fileSpec.writeTo(output)
-            }
-        } catch (exception: ValidationException) {
-            pluginContext.messageCollector.report(
-                CompilerMessageSeverity.ERROR,
-                exception.message ?: exception.toString(),
-            )
-        } finally {
-            koinApp.close()
-        }
+        return classes
     }
 }
 

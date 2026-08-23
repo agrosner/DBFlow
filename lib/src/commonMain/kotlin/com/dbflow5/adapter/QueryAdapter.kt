@@ -7,18 +7,26 @@ import kotlin.reflect.KClass
  * Used by generated code.
  */
 inline fun <reified Table : Any> queryAdapter(ops: QueryOps<Table>) =
-    QueryAdapter(
+    QueryAdapterImpl(
         query = Table::class,
         ops = ops,
     )
 
 /**
- * Represents a generated QueryModel object handler.
+ * Represents a generated query model. Query companions implement this by extending
+ * [QueryAdapterImpl].
  */
-data class QueryAdapter<QueryType : Any>
-@InternalDBFlowApi constructor(
+interface QueryAdapter<QueryType : Any> : QueryOps<QueryType>, QueryRepresentable<QueryType>
+
+/**
+ * Default [QueryAdapter] implementation used by generated adapter factories.
+ */
+open class QueryAdapterImpl<QueryType : Any>
+@InternalDBFlowApi
+constructor(
     val query: KClass<QueryType>,
-    private val ops: QueryOps<QueryType>
-) : QueryOps<QueryType> by ops, QueryRepresentable<QueryType> {
+    private val ops: QueryOps<QueryType>,
+) : QueryAdapter<QueryType>, QueryOps<QueryType> by ops, AdapterCompanion<QueryType> {
+    override val table: KClass<QueryType> = query
     override val type = query
 }

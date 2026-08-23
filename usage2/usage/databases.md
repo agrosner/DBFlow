@@ -46,7 +46,10 @@ val db = createDB<AppDatabase>(DBPlatformSettings()) {
 }
 ```
 
-`createDB` registers generated adapters so KClass lookups such as `select from User::class` work after open. `select from User` uses the table companion and does not need a lookup.
+`createDB` registers generated adapters (`User.Companion as ModelAdapter<User>`, and
+the same for views and query models) so KClass lookups such as `select from
+User::class` work after open. `select from User` uses the table companion directly
+and does not need a lookup.
 
 `DBSettings` fields you typically copy:
 

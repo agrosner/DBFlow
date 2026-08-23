@@ -142,7 +142,7 @@ internal data class TriggerImpl<Table : Any>(
             ) {
                 append("OF ${method.properties.joinToString { it.query }} ")
             }
-            append("ON ${adapter.name} ")
+            append("ON ${adapter.sqlName()} ")
             if (forEachRow) append("FOR EACH ROW ")
             whenOperator?.let { append("WHEN ${it.query} ") }
             if (triggerLogicQuery.isNotEmpty()) {

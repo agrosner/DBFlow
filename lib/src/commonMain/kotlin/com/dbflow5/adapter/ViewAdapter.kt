@@ -14,29 +14,41 @@ inline fun <reified View : Any> viewAdapter(
     creationSQL: CompilableQuery,
     noinline propertyGetter: PropertyGetter<View>,
 ) =
-    ViewAdapter(
+    ViewAdapterImpl(
         view = View::class,
         ops = ops,
-        name = name,
+        viewSqlName = name,
         creationSQL = creationSQL,
         createWithDatabase = createWithDatabase,
         propertyGetter = propertyGetter,
     )
 
 /**
- * Represents a generated VIEW table.
+ * Represents a generated view. Model-view companions implement this by extending
+ * [ViewAdapterImpl].
  */
-data class ViewAdapter<View : Any>
-@InternalDBFlowApi constructor(
+interface ViewAdapter<View : Any> : DBRepresentable<View>, QueryOps<View>
+
+/**
+ * Default [ViewAdapter] implementation used by generated adapter factories.
+ */
+open class ViewAdapterImpl<View : Any>
+@InternalDBFlowApi
+constructor(
     val view: KClass<View>,
     private val ops: QueryOps<View>,
     private val propertyGetter: PropertyGetter<View>,
-    override val name: String,
+    private val viewSqlName: String,
     override val creationSQL: CompilableQuery,
     override val createWithDatabase: Boolean,
-) : QueryOps<View> by ops, DBRepresentable<View> {
+) : ViewAdapter<View>, QueryOps<View> by ops, AdapterCompanion<View> {
+    override val table: KClass<View> = view
+    override val name: String get() = viewSqlName
+
+    override fun sqlName(): String = viewSqlName
+
     override val dropSQL: CompilableQuery = CompilableQuery(
-        "DROP VIEW IF EXISTS $name"
+        "DROP VIEW IF EXISTS $viewSqlName"
     )
     override val type: KClass<View> = view
 

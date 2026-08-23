@@ -63,17 +63,15 @@ internal class FirTableCompanionGenerationExtension(
         context: MemberGenerationContext,
     ): Set<Name> {
         if (classSymbol.isPluginGeneratedCompanion()) {
-            val model = classSymbol.ownerDbFlowModel(session) ?: return setOf(
-                TABLE_PROPERTY,
-                SpecialNames.INIT,
-            )
-            return setOf(TABLE_PROPERTY, SpecialNames.INIT) + model.columnPropertyNames()
+            return setOf(SpecialNames.INIT) + classSymbol.ownerDbFlowModel(session)
+                ?.columnPropertyNames()
+                .orEmpty()
         }
         val model = classSymbol.ownerDbFlowModel(session)
             ?: classSymbol.takeIf { it.isDbFlowModel(session) && it.classKind == ClassKind.OBJECT }
             ?: return emptySet()
         val existing = classSymbol.existingMemberNames()
-        return (setOf(TABLE_PROPERTY) + model.columnPropertyNames()).filterNot { it in existing }.toSet()
+        return model.columnPropertyNames().filterNot { it in existing }.toSet()
     }
 
     override fun generateConstructors(
@@ -92,32 +90,12 @@ internal class FirTableCompanionGenerationExtension(
         val model = owner.ownerDbFlowModel(session)
             ?: owner.takeIf { it.isDbFlowModel(session) && it.classKind == ClassKind.OBJECT }
             ?: return emptyList()
-        if (callableId.callableName == TABLE_PROPERTY) {
-            return listOf(tableProperty(owner, model))
-        }
         val column = model.modelColumn(
             name = callableId.callableName,
             fallbackType = session.builtinTypes.nullableAnyType.coneType,
         ) ?: return emptyList()
         return listOf(columnProperty(owner, model, column))
     }
-
-    private fun tableProperty(
-        owner: FirClassSymbol<*>,
-        model: FirClassSymbol<*>,
-    ): FirPropertySymbol = createMemberProperty(
-        owner = owner,
-        key = DbFlowCompanionPropertyKey,
-        name = TABLE_PROPERTY,
-        returnType = DbFlowClassIds.KClass.createConeType(
-            session,
-            arrayOf(model.defaultType()),
-        ),
-        isVal = true,
-        hasBackingField = false,
-    ) {
-        status { isOverride = true }
-    }.symbol
 
     private fun columnProperty(
         owner: FirClassSymbol<*>,

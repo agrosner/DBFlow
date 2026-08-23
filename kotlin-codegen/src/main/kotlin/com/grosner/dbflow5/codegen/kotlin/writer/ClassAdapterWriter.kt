@@ -33,6 +33,7 @@ class ClassAdapterWriter(
         val onlyAdapterGetters =
             model.distinctAdapterGetters(referencesCache)
         val config = createConfig(model)
+        val adapterKey = nameAllocator[model.generatedClassName]
         return FunSpec.builder(
             "${name}_${config.fieldName}"
         )
@@ -62,12 +63,12 @@ class ClassAdapterWriter(
                     )
                 }
                 if (model.isNormal) {
-                    addCode("propertyGetter = ${model.generatedFieldName}_propertyGetter, \n")
-                    addCode("creationSQL = %L", "${model.generatedFieldName}_creationSQL(), \n")
-                    addCode("primaryModelClauseGetter = ${model.generatedFieldName}_primaryModelClauseGetter, \n")
+                    addCode("propertyGetter = ${adapterKey}_propertyGetter, \n")
+                    addCode("creationSQL = %L", "${adapterKey}_creationSQL(), \n")
+                    addCode("primaryModelClauseGetter = ${adapterKey}_primaryModelClauseGetter, \n")
                 } else if (model.isView) {
-                    addCode("propertyGetter = ${model.generatedFieldName}_propertyGetter, \n")
-                    addCode("creationSQL = %L", "${model.generatedFieldName}_creationSQL(), \n")
+                    addCode("propertyGetter = ${adapterKey}_propertyGetter, \n")
+                    addCode("creationSQL = %L", "${adapterKey}_creationSQL(), \n")
                 }
                 addCode(")")
             }

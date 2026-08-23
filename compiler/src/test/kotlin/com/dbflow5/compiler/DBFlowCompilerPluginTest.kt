@@ -48,16 +48,23 @@ class DBFlowCompilerPluginTest {
         )
         val adapter = generatedFiles.first { it.name == "User_Adapter.kt" }.readText()
         assertTrue(
-            adapter.contains("AdapterCompanion<User>"),
-            "Column properties should extend AdapterCompanion, not User.Companion\n$adapter",
+            adapter.contains("user_companionOps"),
+            "Adapter file should pre-wire companion ops\n$adapter",
         )
         assertTrue(
             adapter.contains("User_AdapterCompanion"),
-            "Helpers should use a file-level AdapterCompanion, not User.Companion\n$adapter",
+            "Internal binders should use file-level adapter companion stand-in\n$adapter",
         )
         assertTrue(
-            !adapter.contains("User.Companion"),
-            "Generated adapters must not reference User.Companion\n$adapter",
+            generatedFiles.none { it.readText().contains("CompanionBase") },
+            "Should not generate companion base classes",
+        )
+        assertTrue(
+            generatedFiles.any {
+                it.name == "AppDatabase_Database.kt" &&
+                    it.readText().contains("User.Companion as")
+            },
+            "Database create() should use model companion as adapter",
         )
     }
 
@@ -86,8 +93,10 @@ class DBFlowCompilerPluginTest {
 
         val usage = compile(
             generated = generated,
-            sources = generatedSources + SourceFile.kotlin(
-                "Usage.kt",
+            sources = generatedSources + listOf(
+                modelsSource(),
+                SourceFile.kotlin(
+                    "Usage.kt",
                 """
                 package com.example
                 import com.dbflow5.database.config.DBPlatformSettings
@@ -101,8 +110,8 @@ class DBFlowCompilerPluginTest {
                     copy(name = "Default", inMemory = true)
                 }
                 """.trimIndent(),
+                ),
             ),
-            classpaths = listOf(models.outputDirectory),
         )
         assertEquals(KotlinCompilation.ExitCode.OK, usage.exitCode, message = usage.messages)
         val classFile = usage.outputDirectory.resolve("com/example/UsageKt.class")
@@ -153,8 +162,10 @@ class DBFlowCompilerPluginTest {
             .toList()
         val usage = compile(
             generated = generated,
-            sources = generatedSources + SourceFile.kotlin(
-                "ColumnUsage.kt",
+            sources = generatedSources + listOf(
+                modelsSource(),
+                SourceFile.kotlin(
+                    "ColumnUsage.kt",
                 """
                 package com.example
                 import com.dbflow5.query.select
@@ -162,8 +173,8 @@ class DBFlowCompilerPluginTest {
                 fun nameColumn() = User.name
                 fun companionSelect() = select from User where (User.name eq "Ada")
                 """.trimIndent(),
+                ),
             ),
-            classpaths = listOf(models.outputDirectory),
         )
         assertEquals(KotlinCompilation.ExitCode.OK, usage.exitCode, message = usage.messages)
     }

@@ -14,7 +14,7 @@ interface HasDistinct<ValueType, Table : Any> {
 
 interface WithTable<ValueType, Table : Any> :
     HasAdapter<Table, WritableDBRepresentable<Table>> {
-    fun withTable(tableName: String = adapter.name): PropertyStart<ValueType, Table>
+    fun withTable(tableName: String = adapter.sqlName()): PropertyStart<ValueType, Table>
 }
 
 typealias AnyProperty = Property<*, *>

@@ -16,12 +16,14 @@ import com.dbflow5.codegen.shared.writer.TypeCreator
 import com.dbflow5.quoteIfNeeded
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.NameAllocator
 import com.squareup.kotlinpoet.KModifier
 
 /**
  * Description:
  */
 class CreationSQLWriter(
+    private val nameAllocator: NameAllocator,
     private val referencesCache: ReferencesCache,
     private val sqLiteLookup: SQLiteLookup,
     private val typeConverterCache: TypeConverterCache,
@@ -36,10 +38,10 @@ class CreationSQLWriter(
             }
         }
         return FunSpec.builder(
-            "${model.generatedFieldName}_creationSQL",
+            "${model.adapterSymbol(nameAllocator)}_creationSQL",
         )
             .returns(ClassNames.CompilableQuery)
-            .addModifiers(KModifier.PRIVATE)
+            .addModifiers(KModifier.INTERNAL)
             .apply {
                 model.originatingSource?.let { source ->
                     originatingFileTypeSpecAdder.addOriginatingFileType(this, source)

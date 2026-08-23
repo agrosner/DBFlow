@@ -58,7 +58,7 @@ internal data class UpdateImpl<Table : Any>(
             if (conflictAction != ConflictAction.NONE) {
                 append("OR ${conflictAction.name} ")
             }
-            append("${adapter.name} ")
+            append("${adapter.sqlName()} ")
             if (operatorGroup.isNotEmpty()) {
                 append("SET ${operatorGroup.query}")
             }

@@ -1,21 +1,16 @@
 package com.dbflow5.compiler.ir
 
 import com.dbflow5.compiler.fir.DbFlowColumnPropertyKey
-import com.dbflow5.compiler.fir.DbFlowCompanionPropertyKey
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.IrElement
-import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.declarations.IrParameterKind
 import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.expressions.impl.IrCallImpl
-import org.jetbrains.kotlin.ir.expressions.impl.IrClassReferenceImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrConstImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrGetValueImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrReturnImpl
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
-import org.jetbrains.kotlin.ir.types.defaultType
-import org.jetbrains.kotlin.ir.types.typeWith
 import org.jetbrains.kotlin.ir.visitors.IrVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 import org.jetbrains.kotlin.ir.visitors.acceptVoid
@@ -24,7 +19,7 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 
 /**
- * Fills the FIR-generated companion `table` property with `Model::class`.
+ * Fills plugin-generated companion column property getters.
  */
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class CompanionPropertyIrTransformer(
@@ -38,42 +33,11 @@ internal class CompanionPropertyIrTransformer(
 
             override fun visitProperty(declaration: IrProperty) {
                 declaration.acceptChildrenVoid(this)
-                if (declaration.isPluginGeneratedTable()) {
-                    fillTable(declaration)
-                } else if (declaration.isPluginGeneratedColumn()) {
+                if (declaration.isPluginGeneratedColumn()) {
                     fillColumn(declaration)
                 }
             }
         })
-    }
-
-    private fun IrProperty.isPluginGeneratedTable(): Boolean {
-        if (name.asString() != "table") return false
-        val origin = origin
-        return origin is IrDeclarationOrigin.GeneratedByPlugin &&
-            origin.pluginKey == DbFlowCompanionPropertyKey
-    }
-
-    private fun fillTable(property: IrProperty) {
-        val companion = property.parent as? IrClass ?: return
-        val model = companion.parent as? IrClass ?: return
-        val getter = property.getter ?: return
-        val classType = model.symbol.defaultType
-        val body = pluginContext.irFactory.createBlockBody(property.startOffset, property.endOffset)
-        body.statements += IrReturnImpl(
-            startOffset = property.startOffset,
-            endOffset = property.endOffset,
-            type = getter.returnType,
-            returnTargetSymbol = getter.symbol,
-            value = IrClassReferenceImpl(
-                startOffset = property.startOffset,
-                endOffset = property.endOffset,
-                type = pluginContext.irBuiltIns.kClassClass.typeWith(classType),
-                symbol = model.symbol,
-                classType = classType,
-            ),
-        )
-        getter.body = body
     }
 
     private fun IrProperty.isPluginGeneratedColumn(): Boolean {

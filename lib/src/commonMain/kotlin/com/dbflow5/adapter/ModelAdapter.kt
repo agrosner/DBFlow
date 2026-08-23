@@ -3,6 +3,7 @@ package com.dbflow5.adapter
 import com.dbflow5.annotation.opts.InternalDBFlowApi
 import com.dbflow5.database.DatabaseConnection
 import com.dbflow5.query.hasData
+import com.dbflow5.query.operations.BaseOperator
 import com.dbflow5.query.operations.OperatorGroup
 import com.dbflow5.query.operations.OperatorGrouping
 import com.dbflow5.query.operations.Property
@@ -23,41 +24,56 @@ inline fun <reified Table : Any> modelAdapter(
     primaryModelClauseGetter: PrimaryModelClauseGetter<Table>,
     noinline propertyGetter: PropertyGetter<Table>,
 ) =
-    ModelAdapter(
+    ModelAdapterImpl(
         table = Table::class,
         ops = ops,
         propertyGetter = propertyGetter,
-        name = name,
+        tableSqlName = name,
         creationSQL = creationSQL,
         createWithDatabase = createWithDatabase,
         primaryModelClauseGetter = primaryModelClauseGetter,
     )
 
 /**
- * Main table usage object. Retrieve instance of class via generated db scope methods.
+ * Main table adapter. Generated table companions implement this by extending
+ * [ModelAdapterImpl] (registered as `User.Companion as ModelAdapter<User>`).
  */
-data class ModelAdapter<Table : Any>
+interface ModelAdapter<Table : Any> : WritableDBRepresentable<Table>, TableOps<Table> {
+
+    fun getPrimaryModelClause(model: Table): List<BaseOperator.SingleValueOperator<*>>
+
+    suspend fun DatabaseConnection.exists(model: Table): Boolean
+}
+
+/**
+ * Default [ModelAdapter] implementation used by generated adapter factories.
+ */
+open class ModelAdapterImpl<Table : Any>
 @InternalDBFlowApi
 constructor(
-    val table: KClass<Table>,
+    override val table: KClass<Table>,
     private val ops: TableOps<Table>,
     private val propertyGetter: PropertyGetter<Table>,
-    override val name: String,
+    private val tableSqlName: String,
     override val creationSQL: CompilableQuery,
     override val createWithDatabase: Boolean,
     private val primaryModelClauseGetter: PrimaryModelClauseGetter<Table>,
-) : TableOps<Table> by ops, WritableDBRepresentable<Table> {
+) : ModelAdapter<Table>, TableOps<Table> by ops, AdapterCompanion<Table> {
+    override val name: String get() = tableSqlName
+
+    override fun sqlName(): String = tableSqlName
+
     override val dropSQL: CompilableQuery = CompilableQuery(
-        "DROP TABLE IF EXISTS $name"
+        "DROP TABLE IF EXISTS $tableSqlName"
     )
 
     override val type: KClass<Table> = table
 
     override fun getProperty(columnName: String) = propertyGetter(columnName)
 
-    fun getPrimaryModelClause(model: Table) = primaryModelClauseGetter.get(model)
+    override fun getPrimaryModelClause(model: Table) = primaryModelClauseGetter.get(model)
 
-    suspend fun DatabaseConnection.exists(model: Table) =
+    override suspend fun DatabaseConnection.exists(model: Table) =
         selectCountOf()
             .where(getPrimaryModelClause(model)
                 .fold(OperatorGroup.nonGroupingClause()) { acc: OperatorGrouping<Query>, operator ->

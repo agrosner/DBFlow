@@ -38,6 +38,26 @@ class ObjectWriter(
     private val nameAllocator: NameAllocator,
 ) {
 
+    fun prepareAllocation(objects: List<ObjectModel>) {
+        val manyToManyModels = objects.filterIsInstance<ManyToManyModel>()
+        val oneToManyModels = objects.filterIsInstance<OneToManyModel>()
+        val classes = objects.filterIsInstance<ClassModel>()
+            .let {
+                it.toMutableList()
+                    .apply {
+                        addAll(manyToManyModels.map { model -> model.classModel })
+                        addAll(oneToManyModels.map { model -> model.classModel })
+                    }
+            }
+            .onEach { model ->
+                nameAllocator.newName(
+                    suggestion = model.generatedFieldName,
+                    tag = model.generatedClassName,
+                )
+            }
+        referencesCache.allClasses = classes
+    }
+
     fun write(
         resolver: ClassNameResolver,
         objects: List<ObjectModel>,
