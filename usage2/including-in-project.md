@@ -101,7 +101,7 @@ Practical notes:
    so native-only projects need `commonMain` dependencies that also publish a
    JVM variant (most multiplatform libraries do).
 
-Do not use KSP or KAPT for DBFlow. Those processors are leftover and not the consumer path.
+Do not use KSP or KAPT for DBFlow. Codegen is only through the `com.dbflow5` compiler plugin.
 
 ## Artifacts
 

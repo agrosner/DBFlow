@@ -5,7 +5,6 @@ kotlin = "2.4.10"
 kotlinCompileTesting = "0.13.0"
 kotlinpoet = "2.2.0"
 koin = "4.2.1"
-ksp = "2.3.11"
 atomicFu = "0.33.0"
 kotlinxCoroutines = "1.11.0"
 robolectric = "4.16.1"
@@ -35,7 +34,6 @@ kotlinpoet = { module = "com.squareup:kotlinpoet-ksp", version.ref = "kotlinpoet
 kotlinpoet-javapoetInterop = { module = "com.squareup:kotlinpoet-javapoet", version.ref = "kotlinpoet" }
 kotlinpoet-metadata = { module = "com.squareup:kotlinpoet-metadata", version.ref = "kotlinpoet" }
 
-ksp = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
 koin = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-test = { module = "io.insert-koin:koin-test-junit4", version.ref = "koin" }
 
@@ -44,7 +42,6 @@ mockito-core = "org.mockito:mockito-core:5.18.0"
 mockito-android = "org.mockito:mockito-android:5.18.0"
 
 kotlinCompileTesting = { module = "dev.zacsweers.kctfork:core", version.ref = "kotlinCompileTesting" }
-kotlinCompileTesting-ksp = { module = "dev.zacsweers.kctfork:ksp", version.ref = "kotlinCompileTesting" }
 
 turbine = "app.cash.turbine:turbine:1.2.1"
 
@@ -65,8 +62,6 @@ kotlin-gradle = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.
 android-library = { id = "com.android.library", version.ref = "android" }
 android-application = { id = "com.android.application", version.ref = "android" }
 android-kmp-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "android" }
-legacy-kapt = { id = "com.android.legacy-kapt", version.ref = "android" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlinx-atomicfu = { id = "org.jetbrains.kotlinx.atomicfu", version.ref = "atomicFu" }
-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
