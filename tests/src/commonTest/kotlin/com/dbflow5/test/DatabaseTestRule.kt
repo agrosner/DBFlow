@@ -21,8 +21,11 @@ class DatabaseTestRule<DB : DBFlowDatabase<DB>>(
      * unless you want to change this field.
      */
     val defaultSettingsCopy: DBSettings.() -> DBSettings = {
-        copy(transactionDispatcherFactory = TestTransactionDispatcherFactory(),
-            modelNotifierFactory = { ModelNotifier.Default })
+        copy(
+            transactionDispatcherFactory = TestTransactionDispatcherFactory(),
+            modelNotifierFactory = { ModelNotifier.Default },
+            inMemory = true,
+        )
     },
 ) {
 

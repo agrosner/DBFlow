@@ -1,6 +1,7 @@
 package com.dbflow5.ksp.parser
 
 import com.google.devtools.ksp.symbol.KSAnnotation
+import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSValueArgument
 import com.squareup.kotlinpoet.TypeName
@@ -32,8 +33,13 @@ inline fun <reified T : Enum<T>> ArgMap.enumArg(
     defValue: T,
     valueOf: (value: String) -> T
 ): T {
-    return arg<KSType?>(name)?.let { arg -> valueOf(arg.declaration.qualifiedName!!.getShortName()) }
-        ?: defValue
+    val raw = get(name)?.value ?: return defValue
+    val shortName = when (raw) {
+        is KSType -> raw.declaration.simpleName.asString()
+        is KSDeclaration -> raw.simpleName.asString()
+        else -> raw.toString().substringAfterLast('.')
+    }
+    return valueOf(shortName)
 }
 
 fun ArgMap.typeName(name: String): TypeName? =

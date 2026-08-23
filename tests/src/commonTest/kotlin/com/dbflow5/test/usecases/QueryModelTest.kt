@@ -11,6 +11,7 @@ import com.dbflow5.test.TestDatabase_Database
 import com.dbflow5.test.TestRule
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 /**
  * Description: Tests to ensure we can load a Query model from the DB
@@ -28,8 +29,8 @@ class QueryModelTest: TestRule() {
             name = "My First Blog",
             author = authorModel,
         ).run { blogAdapter.save(this) }
-        assert(authorAdapter.exists(authorModel))
-        assert(blogAdapter.exists(blogModel))
+        assertTrue(authorAdapter.exists(authorModel))
+        assertTrue(blogAdapter.exists(blogModel))
 
         val result: AuthorNameQuery = (blogAdapter.select(
             Blog_Table.name.withTable().`as`("blogName"),

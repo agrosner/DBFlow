@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
     id("org.jetbrains.kotlin.multiplatform")
@@ -10,6 +11,11 @@ kotlin {
     iosArm64()
     iosSimulatorArm64()
     macosArm64()
+    targets.withType<KotlinNativeTarget>().configureEach {
+        binaries.all {
+            linkerOpts("-lsqlite3")
+        }
+    }
     android {
         namespace = "com.dbflow5.lib"
         compileSdk = Versions.TargetSdk
@@ -43,7 +49,6 @@ kotlin {
             dependsOn(javaPlatformMain)
             dependencies {
                 implementation(libs.sqliteJdbc)
-                implementation(libs.hikariCp)
                 implementation(libs.slf4j.api)
                 implementation(libs.slf4j.simple)
             }

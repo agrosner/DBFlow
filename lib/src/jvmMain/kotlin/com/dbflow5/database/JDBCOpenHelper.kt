@@ -17,6 +17,9 @@ class JDBCOpenHelper(
 ) : OpenHelper, OpenHelperDelegate by databaseHelperDelegate {
 
     private val connection by lazy {
+        generatedDatabase.openHelperName?.let { name ->
+            databaseHelperDelegate.movePrepackagedDB(name, name)
+        }
         JDBCConnection(
             name = generatedDatabase.openHelperName,
             version = generatedDatabase.databaseVersion,

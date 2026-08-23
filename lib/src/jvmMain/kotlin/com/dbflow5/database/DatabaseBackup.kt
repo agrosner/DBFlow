@@ -1,8 +1,10 @@
 package com.dbflow5.database
 
 import com.dbflow5.config.FlowLog
+import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
+import java.io.InputStream
 
 actual class DatabaseBackup(
     private val generatedDatabase: GeneratedDatabase,
@@ -10,25 +12,17 @@ actual class DatabaseBackup(
 ) {
 
     actual fun movePrepackaged(databaseName: String, prepackagedName: String) {
-        val database = resourceFile<DatabaseBackup>(databaseName)
-            ?: run {
-                // TODO: where do we find existing database file connection?
-                FlowLog.log(FlowLog.Level.W, "DatabaseBackup", "Could not retrieve file for $databaseName")
-                //throw IllegalStateException("Could not retrieve file for $databaseName")
-                return
-            }
+        val database = File(databaseName)
         if (database.exists()) {
-            // if file already exists, skip
             return
         }
         try {
-            val prepackaged = resourceFile<DatabaseBackup>(prepackagedName)
-            val existingDB = resourceFile<DatabaseBackup>(getTempDbFileName(generatedDatabase))
-            when {
-                existingDB != null && existingDB.exists() -> FileInputStream(existingDB)
-                prepackaged != null -> FileInputStream(prepackaged)
-                else -> null
-            }?.let { databaseWriter.write(database, it) }
+            val existingDB = File(getTempDbFileName(generatedDatabase))
+            val input = when {
+                existingDB.exists() -> FileInputStream(existingDB)
+                else -> openResource(prepackagedName)
+            } ?: return
+            databaseWriter.write(database, input)
         } catch (e: IOException) {
             FlowLog.log(FlowLog.Level.W, "Failed to open file", throwable = e)
         }
@@ -42,5 +36,14 @@ actual class DatabaseBackup(
     }
 
     actual fun backupDB() {
+    }
+
+    private fun openResource(name: String): InputStream? {
+        val loaders = listOfNotNull(
+            Thread.currentThread().contextClassLoader,
+            DatabaseBackup::class.java.classLoader,
+        )
+        return loaders.firstNotNullOfOrNull { loader -> loader.getResourceAsStream(name) }
+            ?: File(name).takeIf { it.exists() }?.let(::FileInputStream)
     }
 }

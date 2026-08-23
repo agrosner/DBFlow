@@ -1,12 +1,9 @@
 package com.dbflow5.database
 
-import com.dbflow5.delegates.CheckOpen
-import com.dbflow5.delegates.checkOpen
-import com.zaxxer.hikari.HikariConfig
-import com.zaxxer.hikari.HikariDataSource
 import kotlinx.atomicfu.atomic
 import java.io.File
 import java.sql.Connection
+import java.sql.DriverManager
 import java.sql.PreparedStatement
 import java.sql.Statement
 
@@ -16,31 +13,30 @@ import java.sql.Statement
 internal class JDBCConnectionWrapper(
     // null if in memory.
     private val name: String? = null,
-    private val config: HikariConfig,
+    private val connection: Connection,
 ) {
-    private var transaction by atomic(false)
-
-    private val dataSource = HikariDataSource(config)
-
-    private val connection: Connection by checkOpen { CheckOpenConnectionWrapper(dataSource.connection) }
+    private val transactionDepth = atomic(0)
 
     val isReadOnly
-        get() = dataSource.isReadOnly
+        get() = connection.isReadOnly
 
     val isClosed
-        get() = dataSource.isClosed
+        get() = connection.isClosed
 
     val version
-        get() = connection.createStatement().executeQuery("PRAGMA user_version").getInt(1)
+        get() = connection.createStatement().use { statement ->
+            statement.executeQuery("PRAGMA user_version").use { cursor ->
+                if (cursor.next()) cursor.getInt(1) else 0
+            }
+        }
 
     val inTransaction
-        get() = transaction
-
+        get() = transactionDepth.value > 0
 
     fun setVersion(newVersion: Int) {
-        connection.createStatement().executeUpdate(
-            "PRAGMA user_version = $newVersion"
-        )
+        connection.createStatement().use { statement ->
+            statement.executeUpdate("PRAGMA user_version = $newVersion")
+        }
     }
 
     fun delete() {
@@ -48,7 +44,9 @@ internal class JDBCConnectionWrapper(
             close()
         }
         if (name != null) {
-            File(name).also { it.delete() }
+            File(name).delete()
+            File("$name-wal").delete()
+            File("$name-shm").delete()
         }
     }
 
@@ -58,57 +56,52 @@ internal class JDBCConnectionWrapper(
         connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)
 
     fun beginTransaction() {
-        if (!transaction) {
-            transaction = true
+        if (transactionDepth.getAndIncrement() == 0) {
+            connection.autoCommit = false
         }
     }
 
     fun setTransactionSuccessful() {
-        connection.commit()
-        transaction = false
+        if (transactionDepth.decrementAndGet() == 0) {
+            connection.commit()
+            connection.autoCommit = true
+        }
     }
 
     fun rollback() {
-        connection.rollback()
-        transaction = false
+        if (transactionDepth.value > 0) {
+            transactionDepth.value = 0
+            connection.rollback()
+            connection.autoCommit = true
+        }
     }
 
     fun close() {
-        dataSource.close()
+        if (!connection.isClosed) {
+            connection.close()
+        }
     }
 
     companion object {
 
         fun openDatabase(name: String) = openDatabaseConnection(
-            name = name
+            name = name,
+            url = "jdbc:sqlite:$name?busy_timeout=30000",
         )
 
-        fun createInMemory() = openDatabaseConnection(null)
+        fun createInMemory() = openDatabaseConnection(
+            name = null,
+            url = "jdbc:sqlite::memory:?busy_timeout=30000",
+        )
 
         private fun openDatabaseConnection(
             name: String?,
-        ) = JDBCConnectionWrapper(
-            name,
-            HikariConfig().apply {
-                jdbcUrl = if (name == null) {
-                    "jdbc:sqlite::memory:"
-                } else {
-                    "jdbc:sqlite:$name?busy_timeout=30000&journal_mode=WAL"
-                }
-                addDataSourceProperty("cachePrepStmts", "true")
-                addDataSourceProperty("prepStmtCacheSize", "250")
-                addDataSourceProperty("prepStmtCacheSqlLimit", "2048")
-                isAutoCommit = false
-                maximumPoolSize = 1
+            url: String,
+        ): JDBCConnectionWrapper {
+            val connection = DriverManager.getConnection(url).apply {
+                autoCommit = true
             }
-        )
+            return JDBCConnectionWrapper(name, connection)
+        }
     }
-}
-
-
-private class CheckOpenConnectionWrapper(
-    private val connection: Connection,
-) : Connection by connection, CheckOpen {
-    override val isOpen: Boolean
-        get() = !connection.isClosed
 }

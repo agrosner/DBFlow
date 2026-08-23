@@ -13,7 +13,8 @@ internal sealed class TriggerQualifier(val value: String) {
     object InsteadOf : TriggerQualifier("INSTEAD OF")
 
     companion object {
-        val All = listOf(Before, After, InsteadOf)
+        val All: List<TriggerQualifier>
+            get() = listOf(Before, After, InsteadOf)
     }
 }
 
@@ -24,7 +25,8 @@ internal sealed class TriggerMethod(val value: String) {
 
     object Delete : TriggerMethod("DELETE")
     companion object {
-        val All = listOf(Insert, Update<Any>(listOf()), Delete)
+        val All: List<TriggerMethod>
+            get() = listOf(Insert, Update<Any>(listOf()), Delete)
     }
 }
 

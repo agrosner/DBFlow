@@ -1,4 +1,6 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeTest
 
 plugins {
     id("org.jetbrains.kotlin.multiplatform")
@@ -11,6 +13,11 @@ kotlin {
     macosArm64()
     iosArm64()
     iosSimulatorArm64()
+    targets.withType<KotlinNativeTarget>().configureEach {
+        binaries.all {
+            linkerOpts("-lsqlite3")
+        }
+    }
     android {
         namespace = "com.dbflow5.test"
         compileSdk = Versions.TargetSdk
@@ -60,6 +67,12 @@ kotlin {
             implementation(libs.kotlinx.coroutines.test)
             implementation(libs.turbine)
         }
+        invokeWhenCreated("nativeTest") {
+            dependencies {
+                implementation(libs.sqliter)
+                implementation(libs.okio)
+            }
+        }
         getByName("androidMain").dependencies {
             implementation(libs.androidx.appcompat)
             implementation(project(":sqlcipher"))
@@ -102,4 +115,11 @@ kotlin {
 
 dependencies {
     add("kspCommonMainMetadata", project(":ksp"))
+}
+
+tasks.withType<KotlinNativeTest>().configureEach {
+    environment(
+        "DBFLOW_RESOURCES_DIR",
+        layout.projectDirectory.dir("src/commonMain/resources").asFile.absolutePath,
+    )
 }

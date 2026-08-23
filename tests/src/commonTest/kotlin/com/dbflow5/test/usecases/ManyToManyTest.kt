@@ -1,5 +1,6 @@
 package com.dbflow5.test.usecases
 
+import com.dbflow5.database.DatabaseObjectLookup
 import com.dbflow5.test.Artist
 import com.dbflow5.test.Artist_Song
 import com.dbflow5.test.DatabaseTestRule
@@ -23,6 +24,6 @@ class ManyToManyTest : TestRule() {
             artistModel,
             songModel
         )
-        artistSongAdapter.save(artistSong)
+        DatabaseObjectLookup.getModelAdapter(Artist_Song::class).save(artistSong)
     }
 }

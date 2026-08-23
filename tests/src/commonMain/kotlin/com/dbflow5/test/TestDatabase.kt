@@ -27,7 +27,6 @@ import com.dbflow5.test.NonTypical.nonTypicalClassName
         DontCreateModel::class,
         OneToManyModel::class,
         OneToManyBaseModel::class,
-        OneToManyModel_OneToManyBaseModel::class,
         IndexModel::class,
         nonTypicalClassName::class,
         Outer.Inner::class,
@@ -73,8 +72,6 @@ abstract class TestDatabase : DBFlowDatabase<TestDatabase>() {
 
     abstract val songAdapter: ModelAdapter<Song>
 
-    abstract val artistSongAdapter: ModelAdapter<Artist_Song>
-
     abstract val tempModelAdapter: ModelAdapter<TempModel>
 
     abstract val dontCreateModelAdapter: ModelAdapter<DontCreateModel>
@@ -82,8 +79,6 @@ abstract class TestDatabase : DBFlowDatabase<TestDatabase>() {
     abstract val oneToManyModelAdapter: ModelAdapter<OneToManyModel>
 
     abstract val oneToManyBaseModelAdapter: ModelAdapter<OneToManyBaseModel>
-
-    abstract val oneToManyModelOneToManyBaseModelQueryAdapter: QueryAdapter<OneToManyModel_OneToManyBaseModel>
 
     abstract val typeConverterModelAdapter: ModelAdapter<TypeConverterModel>
 

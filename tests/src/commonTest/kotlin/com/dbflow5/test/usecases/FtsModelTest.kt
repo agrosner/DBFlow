@@ -68,7 +68,7 @@ class FtsModelTest : TestRule()  {
             Fts4VirtualModel_Table.name
         ) select fts4ContentModelAdapter.select(Fts4ContentModel_Table.id, Fts4ContentModel_Table.name))
             .execute()
-        assert(rows > 0)
+        assertTrue(rows > 0)
         val value =
             (fts4VirtualModelAdapter.select(
                 resultFactory = StringResultFactory,

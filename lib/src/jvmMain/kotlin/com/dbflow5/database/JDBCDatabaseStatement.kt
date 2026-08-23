@@ -26,21 +26,22 @@ internal constructor(
     }
 
     override fun simpleQueryForLong(): Long = rethrowDBFlowException {
-        statement.executeQuery().run {
-            if (next()) getLong(1) else 0
+        statement.executeQuery().use { cursor ->
+            if (cursor.next()) cursor.getLong(1) else 0
         }
     }
 
     override fun simpleQueryForString(): String? = rethrowDBFlowException {
-        statement.executeQuery().run {
-            if (next()) getString(1) else null
+        statement.executeQuery().use { cursor ->
+            if (cursor.next()) cursor.getString(1) else null
         }
     }
 
     override fun executeInsert(): Long = rethrowDBFlowException {
-        // retrieve the first generated key as return type.
         statement.executeUpdate()
-        return statement.use { it.generatedKeys.use { keys -> keys.getLong(1) } }
+        statement.generatedKeys.use { keys ->
+            if (keys.next()) keys.getLong(1) else 0L
+        }
     }
 
     override fun bindString(index: Int, s: String) {

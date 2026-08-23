@@ -8,7 +8,6 @@ import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.SQLiteException
 import com.dbflow5.database.beginTransactionAsync
 import com.dbflow5.mpp.use
-import com.dbflow5.query.TriggerMethod
 import com.dbflow5.quoteIfNeeded
 import com.dbflow5.stripQuotes
 import kotlinx.atomicfu.atomic
@@ -250,11 +249,11 @@ class TableObserver<DB : DBFlowDatabase<DB>> internal constructor(
         db.execute("INSERT OR IGNORE INTO $TABLE_OBSERVER_NAME VALUES($tableId, 0)")
         val adapter = adapters[tableId]
 
-        TriggerMethod.All.forEach { method ->
+        OBSERVED_TRIGGER_METHODS.forEach { method ->
             // utilize raw query, since we're using dynamic tables not supported by query language.
             db.execute(
-                "CREATE TEMP TRIGGER IF NOT EXISTS ${getTriggerName(adapter, method.value)} " +
-                    "AFTER ${method.value} ON ${adapter.name.quoteIfNeeded()} " +
+                "CREATE TEMP TRIGGER IF NOT EXISTS ${getTriggerName(adapter, method)} " +
+                    "AFTER $method ON ${adapter.name.quoteIfNeeded()} " +
                     "BEGIN UPDATE $TABLE_OBSERVER_NAME " +
                     "SET $INVALIDATED_COLUMN_NAME = 1 " +
                     "WHERE $TABLE_ID_COLUMN_NAME = $tableId " +
@@ -265,8 +264,8 @@ class TableObserver<DB : DBFlowDatabase<DB>> internal constructor(
 
     private fun stopObservingTable(db: DatabaseConnection, tableId: Int) {
         val adapter = adapters[tableId]
-        TriggerMethod.All.forEach { method ->
-            db.execute("DROP TRIGGER IF EXISTS ${getTriggerName(adapter, method.value)}")
+        OBSERVED_TRIGGER_METHODS.forEach { method ->
+            db.execute("DROP TRIGGER IF EXISTS ${getTriggerName(adapter, method)}")
         }
     }
 
@@ -281,6 +280,7 @@ class TableObserver<DB : DBFlowDatabase<DB>> internal constructor(
         private const val TABLE_ID_COLUMN_NAME = "table_id"
         private const val SELECT_UPDATED_TABLES_SQL =
             "SELECT * FROM $TABLE_OBSERVER_NAME WHERE $INVALIDATED_COLUMN_NAME = 1;"
+        private val OBSERVED_TRIGGER_METHODS = listOf("INSERT", "UPDATE", "DELETE")
     }
 }
 

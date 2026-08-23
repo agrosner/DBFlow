@@ -7,6 +7,7 @@ import com.dbflow5.test.MigratedPrepackagedDB_Database
 import com.dbflow5.test.PrepackagedDB_Database
 import com.dbflow5.test.TestRule
 import com.dbflow5.test.TestTransactionDispatcherFactory
+import com.dbflow5.test.installPrepackagedFixtures
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
@@ -14,6 +15,10 @@ import kotlin.test.assertTrue
  * Description: Asserts our prepackaged DB loads.
  */
 class PrepackagedDBTest : TestRule()  {
+
+    init {
+        installPrepackagedFixtures()
+    }
 
     val prepackagedDBRule = DatabaseTestRule(PrepackagedDB_Database) {
         copy(

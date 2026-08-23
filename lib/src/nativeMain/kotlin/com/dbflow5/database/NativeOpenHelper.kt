@@ -44,8 +44,14 @@ class NativeOpenHelper(
         inMemory = generatedDatabase.isInMemory,
     )
     private val manager = createDatabaseManager(
-        configuration
+        configuration.also {
+            generatedDatabase.openHelperName?.let { name ->
+                databaseHelperDelegate.movePrepackagedDB(name, name)
+            }
+        }
     )
+
+    private var currentConnection: NativeDatabaseConnection? = null
 
     override val database by databaseProperty(
         onOpen = { db ->
@@ -53,10 +59,11 @@ class NativeOpenHelper(
         }
     ) {
         NativeDatabaseConnection(generatedDatabase, manager.createSingleThreadedConnection())
+            .also { currentConnection = it }
     }
 
     override val isOpen: Boolean
-        get() = database.isOpen
+        get() = currentConnection?.isOpen == true
 
     override fun setWriteAheadLoggingEnabled(enabled: Boolean, connection: DatabaseConnection) {
         (connection as NativeDatabaseConnection).db.updateJournalMode(if (enabled) JournalMode.WAL else JournalMode.DELETE)
@@ -67,7 +74,10 @@ class NativeOpenHelper(
     }
 
     override fun close() {
-        database.db.close()
+        val connection = currentConnection ?: return
+        if (connection.isOpen) {
+            connection.db.close()
+        }
     }
 
     override fun delete() {
