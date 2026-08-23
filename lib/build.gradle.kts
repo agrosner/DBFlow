@@ -1,17 +1,23 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
-    kotlin("multiplatform")
-    id("com.android.library")
-    id("androidConfig")
-    alias(libs.plugins.kotlinx.atomicfu)
+    id("org.jetbrains.kotlin.multiplatform")
+    id("com.android.kotlin.multiplatform.library")
 }
 
-// project.ext.artifactId = bt_name
 kotlin {
-    androidTarget()
     jvm()
-    ios()
+    iosArm64()
+    iosSimulatorArm64()
     macosArm64()
-    macosX64()
+    android {
+        namespace = "com.dbflow5.lib"
+        compileSdk = Versions.TargetSdk
+        minSdk = Versions.MinSdk
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+        }
+    }
 
     sourceSets {
         all {
@@ -19,22 +25,21 @@ kotlin {
             languageSettings.optIn("com.dbflow5.annotation.opts.InternalDBFlowApi")
             languageSettings.optIn("kotlinx.coroutines.DelicateCoroutinesApi")
         }
-        val commonMain by getting {
-            dependencies {
-                api(project(":core"))
-                api(libs.coroutines)
-                api(libs.atomicFu)
-            }
+        commonMain.dependencies {
+            api(project(":core"))
+            api(libs.coroutines)
+            api(libs.atomicFu)
         }
-        val javaPlatformMain by creating
-
-        val androidMain by getting {
+        val javaPlatformMain = create("javaPlatformMain") {
+            dependsOn(getByName("commonMain"))
+        }
+        getByName("androidMain") {
             dependsOn(javaPlatformMain)
             dependencies {
                 api(libs.coroutines.android)
             }
         }
-        val jvmMain by getting {
+        getByName("jvmMain") {
             dependsOn(javaPlatformMain)
             dependencies {
                 implementation(libs.sqliteJdbc)
@@ -43,30 +48,19 @@ kotlin {
                 implementation(libs.slf4j.simple)
             }
         }
-
-        val nativeMain by creating {
-            dependsOn(commonMain)
+        val nativeMain = create("nativeMain") {
+            dependsOn(getByName("commonMain"))
             dependencies {
                 implementation(libs.sqliter)
                 implementation(libs.okio)
             }
         }
-
-        val iosMain by getting {
+        val iosMain = create("iosMain") {
             dependsOn(nativeMain)
         }
-
-        val macosX64Main by getting {
-            dependsOn(nativeMain)
+        listOf("iosArm64Main", "iosSimulatorArm64Main").forEach { name ->
+            getByName(name).dependsOn(iosMain)
         }
-        val macosArm64Main by getting {
-            dependsOn(nativeMain)
-        }
+        getByName("macosArm64Main").dependsOn(nativeMain)
     }
 }
-
-android {
-    namespace = "com.dbflow5.lib"
-}
-
-apply(from = "../kotlin-artifacts.gradle.kts")

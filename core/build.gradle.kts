@@ -1,44 +1,32 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    kotlin("multiplatform")
-    id("com.android.library")
-    id("androidConfig")
+    id("org.jetbrains.kotlin.multiplatform")
+    id("com.android.kotlin.multiplatform.library")
 }
 
 kotlin {
     jvm()
-    android()
-    ios()
+    iosArm64()
+    iosSimulatorArm64()
     macosArm64()
-    macosX64()
-
-    sourceSets {
-        val commonMain by getting
-        val jvmMain by getting
-        val androidMain by getting {
-            dependsOn(jvmMain)
+    android {
+        namespace = "com.dbflow5.core"
+        compileSdk = Versions.TargetSdk
+        minSdk = Versions.MinSdk
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
         }
     }
-}
 
-// project.ext.artifactId = bt_name
-
-android {
-    compileSdk = Versions.TargetSdk
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-
-    defaultConfig {
-        minSdk = Versions.MinSdk
-        targetSdk = Versions.TargetSdk
-    }
-    namespace = "com.dbflow5.core"
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs = listOf("-opt-in=kotlin.RequiresOptIn")
+    sourceSets {
+        all {
+            languageSettings.optIn("kotlin.RequiresOptIn")
+        }
+        val javaPlatformMain = create("javaPlatformMain") {
+            dependsOn(getByName("commonMain"))
+        }
+        getByName("androidMain").dependsOn(javaPlatformMain)
+        getByName("jvmMain").dependsOn(javaPlatformMain)
     }
 }
-
-apply(from = "../kotlin-artifacts.gradle.kts")

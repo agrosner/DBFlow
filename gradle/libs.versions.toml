@@ -1,32 +1,32 @@
 [versions]
-android = "8.2.0-alpha12"
-appcompat = "1.6.1"
-kotlin = "1.9.0"
-kotlinCompileTesting = "1.5.0"
-kotlinpoet = "1.14.2"
-koin = "3.4.2"
-ksp = "1.9.0-1.0.11"
-atomicFu = "0.20.2"
-kotlinxCoroutinesTest = "1.7.1"
-robolectric = "4.9"
+android = "9.3.0"
+appcompat = "1.7.1"
+kotlin = "2.4.10"
+kotlinCompileTesting = "0.13.0"
+kotlinpoet = "2.2.0"
+koin = "4.2.1"
+ksp = "2.3.11"
+atomicFu = "0.33.0"
+kotlinxCoroutines = "1.11.0"
+robolectric = "4.16.1"
 
 [libraries]
-androidx-annotations = "androidx.annotation:annotation:1.6.0"
+androidx-annotations = "androidx.annotation:annotation:1.9.1"
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 androidx-core-testing = { module = "androidx.arch.core:core-testing", version = "2.2.0" }
-androidx-junit = { module = "androidx.test.ext:junit", version = "1.1.5" }
-androidx-livedata = "androidx.lifecycle:lifecycle-livedata:2.6.1"
-androidx-paging = "androidx.paging:paging-runtime:3.1.1"
-androidx-rules = { module = "androidx.test:rules", version = "1.5.0" }
-androidx-runner = { module = "androidx.test:runner", version = "1.5.2" }
-androidx-sqlite = { module = "androidx.sqlite:sqlite", version = "2.3.1" }
-androidx-test-core = { module = "androidx.test:core", version = "1.5.0" }
-kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
+androidx-junit = { module = "androidx.test.ext:junit", version = "1.3.0" }
+androidx-livedata = "androidx.lifecycle:lifecycle-livedata:2.9.4"
+androidx-paging = "androidx.paging:paging-runtime:3.3.6"
+androidx-rules = { module = "androidx.test:rules", version = "1.7.0" }
+androidx-runner = { module = "androidx.test:runner", version = "1.7.0" }
+androidx-sqlite = { module = "androidx.sqlite:sqlite", version = "2.5.2" }
+androidx-test-core = { module = "androidx.test:core", version = "1.7.0" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 sqlCipher = "net.zetetic:android-database-sqlcipher:4.5.4"
-rx = "io.reactivex.rxjava3:rxjava:3.1.3"
-coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1"
-coroutines-android = "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1"
+rx = "io.reactivex.rxjava3:rxjava:3.1.12"
+coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
+coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
 javapoet = "com.squareup:javapoet:1.13.0"
 javax-annotation = "org.glassfish:javax.annotation:10.0-b28"
 junit = "junit:junit:4.13.2"
@@ -37,31 +37,36 @@ kotlinpoet-metadata = { module = "com.squareup:kotlinpoet-metadata", version.ref
 
 ksp = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
 koin = { module = "io.insert-koin:koin-core", version.ref = "koin" }
-koin-test = "io.insert-koin:koin-test-junit4:3.4.1"
+koin-test = { module = "io.insert-koin:koin-test-junit4", version.ref = "koin" }
 
-mockito-kotlin = "org.mockito.kotlin:mockito-kotlin:4.0.0"
-mockito-core = "org.mockito:mockito-core:4.3.1"
-mockito-android = "org.mockito:mockito-android:4.3.1"
+mockito-kotlin = "org.mockito.kotlin:mockito-kotlin:5.4.0"
+mockito-core = "org.mockito:mockito-core:5.18.0"
+mockito-android = "org.mockito:mockito-android:5.18.0"
 
-kotlinCompileTesting = { module = "com.github.tschuchortdev:kotlin-compile-testing", version.ref = "kotlinCompileTesting" }
-kotlinCompileTesting-ksp = { module = "com.github.tschuchortdev:kotlin-compile-testing-ksp", version.ref = "kotlinCompileTesting" }
+kotlinCompileTesting = { module = "dev.zacsweers.kctfork:core", version.ref = "kotlinCompileTesting" }
+kotlinCompileTesting-ksp = { module = "dev.zacsweers.kctfork:ksp", version.ref = "kotlinCompileTesting" }
 
-turbine = "app.cash.turbine:turbine:0.13.0"
+turbine = "app.cash.turbine:turbine:1.2.1"
 
 atomicFu = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "atomicFu" }
 
-sqliteJdbc = "org.xerial:sqlite-jdbc:3.36.0.3"
-hikariCp = "com.zaxxer:HikariCP:5.0.1"
-slf4j-api = "org.slf4j:slf4j-api:1.7.36"
-slf4j-simple = "org.slf4j:slf4j-simple:1.7.36"
+sqliteJdbc = "org.xerial:sqlite-jdbc:3.50.3.0"
+hikariCp = "com.zaxxer:HikariCP:6.3.0"
+slf4j-api = "org.slf4j:slf4j-api:2.0.17"
+slf4j-simple = "org.slf4j:slf4j-simple:2.0.17"
 
-sqliter = "co.touchlab:sqliter-driver:1.2.1"
-okio = "com.squareup.okio:okio:3.3.0"
+sqliter = "co.touchlab:sqliter-driver:1.3.3"
+okio = "com.squareup.okio:okio:3.16.4"
 
 android-gradle = { module = "com.android.tools.build:gradle", version.ref = "android" }
 kotlin-gradle = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 
 [plugins]
-android = { id = "com.android.library", version.ref = "android" }
-kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-kotlinx-atomicfu = { id = "org.jetbrains.kotlin.plugin.atomicfu", version = "1.9.0" }
+android-library = { id = "com.android.library", version.ref = "android" }
+android-application = { id = "com.android.application", version.ref = "android" }
+android-kmp-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "android" }
+legacy-kapt = { id = "com.android.legacy-kapt", version.ref = "android" }
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlinx-atomicfu = { id = "org.jetbrains.kotlinx.atomicfu", version.ref = "atomicFu" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

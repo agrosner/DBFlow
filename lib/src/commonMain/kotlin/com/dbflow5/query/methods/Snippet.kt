@@ -18,9 +18,8 @@ object Snippet : StandardMethod {
         index: Int? = null,
         approximateTokens: Int? = null,
     ): Method<String> {
-        val args = listOfNotNull(start, end, ellipses, index, approximateTokens).map {
-            sqlLiteralOf(it)
-        }
+        val args = listOfNotNull(start, end, ellipses).map { sqlLiteralOf(it) } +
+            listOfNotNull(index, approximateTokens).map { sqlLiteralOf(it) }
         return method(
             name,
             makeLazyDBRepresentable(Table::class).tableNameLiteral(),

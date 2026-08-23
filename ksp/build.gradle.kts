@@ -1,18 +1,11 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
-    kotlin("jvm")
+    id("org.jetbrains.kotlin.jvm")
 }
 
-configureJdk()
-
-val compileKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions {
-    freeCompilerArgs = listOf(
-        "-Xopt-in=com.squareup.kotlinpoet.ksp.KotlinPoetKspPreview",
-        "-Xopt-in=kotlin.ExperimentalStdlibApi"
-    )
-}
+configureJdk(
+    "com.squareup.kotlinpoet.ksp.KotlinPoetKspPreview",
+    "kotlin.ExperimentalStdlibApi",
+)
 
 dependencies {
     api(project(":core"))
@@ -22,5 +15,3 @@ dependencies {
     api(libs.koin)
     api(libs.ksp)
 }
-
-apply(from = "../kotlin-artifacts.gradle.kts")

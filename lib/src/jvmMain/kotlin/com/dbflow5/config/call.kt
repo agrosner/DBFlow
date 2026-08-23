@@ -1,6 +1,6 @@
 package com.dbflow5.config
 
-import org.slf4j.impl.SimpleLoggerFactory
+import org.slf4j.simple.SimpleLoggerFactory
 
 private val factory = SimpleLoggerFactory()
 

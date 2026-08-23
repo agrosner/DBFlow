@@ -1,25 +1,17 @@
 plugins {
-    id("com.google.devtools.ksp") version Versions.KSP
-    id("com.android.library")
-    kotlin("android")
-    kotlin("kapt")
     id("androidConfig")
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.legacy.kapt)
 }
 
 android {
+    namespace = "com.dbflow5.ksp.test"
     defaultConfig {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-
-    sourceSets {
-        getByName("main").kotlin.srcDir("build/generated/ksp/main/kotlin")
-        getByName("test").kotlin.srcDir("build/generated/ksp/test/kotlin")
-        getByName("androidTest").kotlin {
-            srcDir("build/generated/ksp/debugAndroidTest/kotlin")
-        }
-    }
-    namespace = "com.dbflow5.ksp.test"
 }
+
+configureJdk()
 
 dependencies {
     implementation(project(":lib"))
@@ -29,7 +21,6 @@ dependencies {
     implementation(project(":livedata"))
 
     testImplementation(libs.koin)
-
     testImplementation(libs.mockito.kotlin)
     testImplementation(libs.koin.test)
     testImplementation(project(":ksp"))

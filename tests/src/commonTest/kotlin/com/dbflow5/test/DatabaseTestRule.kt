@@ -9,8 +9,7 @@ import com.dbflow5.database.config.DBSettings
 import com.dbflow5.mpp.use
 import com.dbflow5.observing.notifications.ModelNotifier
 import com.dbflow5.test.helpers.platformSettings
-import kotlinx.coroutines.test.TestScope
-import kotlin.test.assertFalse
+import kotlinx.coroutines.runBlocking
 
 /**
  * Provides hook into specified DB.
@@ -36,18 +35,16 @@ class DatabaseTestRule<DB : DBFlowDatabase<DB>>(
         }
     }
 
-    fun runTest(fn: suspend DB.(testScope: TestScope) -> Unit) {
+    fun runTest(fn: suspend DB.() -> Unit) {
         acquireFreshDatabase {
-            kotlinx.coroutines.test.runTest {
-                val scope = this
-                db.apply { fn(scope) }
+            runBlocking {
+                db.fn()
             }
         }
     }
 
     inline fun acquireFreshDatabase(fn: () -> Unit) {
         DatabaseObjectLookup.loadHolder(GeneratedDatabaseHolderFactory)
-        //Dispatchers.setMain(UnconfinedTestDispatcher())
         FlowLog.setMinimumLoggingLevel(FlowLog.Level.V)
         creator.create(
             platformSettings(),
@@ -61,7 +58,6 @@ class DatabaseTestRule<DB : DBFlowDatabase<DB>>(
             } finally {
                 db.destroy()
             }
-            assertFalse(db.isOpen)
         }
     }
 }

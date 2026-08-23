@@ -90,7 +90,11 @@ internal class JDBCConnectionWrapper(
         ) = JDBCConnectionWrapper(
             name,
             HikariConfig().apply {
-                jdbcUrl = "jdbc:sqlite:${name ?: "memory:"}"
+                jdbcUrl = if (name == null) {
+                    "jdbc:sqlite::memory:"
+                } else {
+                    "jdbc:sqlite:$name?busy_timeout=30000&journal_mode=WAL"
+                }
                 addDataSourceProperty("cachePrepStmts", "true")
                 addDataSourceProperty("prepStmtCacheSize", "250")
                 addDataSourceProperty("prepStmtCacheSqlLimit", "2048")
