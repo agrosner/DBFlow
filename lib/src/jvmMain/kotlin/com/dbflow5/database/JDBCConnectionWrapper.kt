@@ -59,18 +59,23 @@ internal class JDBCConnectionWrapper(
 
     fun beginTransaction() {
         if (!transaction) {
+            connection.autoCommit = false
             transaction = true
         }
     }
 
     fun setTransactionSuccessful() {
         connection.commit()
+        connection.autoCommit = true
         transaction = false
     }
 
     fun rollback() {
-        connection.rollback()
-        transaction = false
+        if (transaction) {
+            connection.rollback()
+            connection.autoCommit = true
+            transaction = false
+        }
     }
 
     fun close() {
@@ -91,14 +96,14 @@ internal class JDBCConnectionWrapper(
             name,
             HikariConfig().apply {
                 jdbcUrl = if (name == null) {
-                    "jdbc:sqlite::memory:"
+                    "jdbc:sqlite::memory:?busy_timeout=30000"
                 } else {
-                    "jdbc:sqlite:$name?busy_timeout=30000&journal_mode=WAL"
+                    "jdbc:sqlite:$name?busy_timeout=30000"
                 }
                 addDataSourceProperty("cachePrepStmts", "true")
                 addDataSourceProperty("prepStmtCacheSize", "250")
                 addDataSourceProperty("prepStmtCacheSqlLimit", "2048")
-                isAutoCommit = false
+                isAutoCommit = true
                 maximumPoolSize = 1
             }
         )

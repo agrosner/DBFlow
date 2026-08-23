@@ -26,8 +26,7 @@ class JDBCDatabaseConnection internal constructor(
         val result = dbFn()
         db.setTransactionSuccessful()
         result
-    } catch (e: SQLException) {
-        e.printStackTrace()
+    } catch (e: Throwable) {
         db.rollback()
         throw e
     }
@@ -43,7 +42,7 @@ class JDBCDatabaseConnection internal constructor(
 }
 
 fun SQLException.toDBFlowSQLiteException() =
-    SQLiteException("A Database Error Occurred", this)
+    SQLiteException("A Database Error Occurred: $message", this)
 
 inline fun <T> rethrowDBFlowException(fn: () -> T) = try {
     fn()

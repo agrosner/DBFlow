@@ -38,9 +38,10 @@ internal constructor(
     }
 
     override fun executeInsert(): Long = rethrowDBFlowException {
-        // retrieve the first generated key as return type.
         statement.executeUpdate()
-        return statement.use { it.generatedKeys.use { keys -> keys.getLong(1) } }
+        statement.generatedKeys.use { keys ->
+            if (keys.next()) keys.getLong(1) else 0L
+        }
     }
 
     override fun bindString(index: Int, s: String) {
