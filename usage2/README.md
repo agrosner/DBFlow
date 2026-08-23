@@ -3,15 +3,15 @@
 DBFlow maps Kotlin types to SQLite. You declare a `@Database` and `@Table`s. The compiler plugin generates:
 
 - `{Name}_Database` — concrete database + `DBCreator`
-- `{Name}_Table` — column properties for queries
-- `GeneratedDatabaseHolderFactory` — adapter registry
+- Model companions — `User.name` column properties and `select from User`
+- `{Name}_Adapter` helpers — adapter factories used by `create()`
 
 Work through generated **adapters** on the database instance. Reads and writes are **suspend** and run on the database’s transaction dispatcher.
 
 ```kotlin
 db.writableTransaction {
     userAdapter.save(User(name = "Ada"))
-    val ada = (userAdapter.select() where (User_Table.name eq "Ada")).single()
+    val ada = (userAdapter.select() where (User.name eq "Ada")).single()
 }
 ```
 

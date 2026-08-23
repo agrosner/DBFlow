@@ -5,8 +5,8 @@ Prefer `adapter.select()` on the generated database. Terminal calls are `suspend
 ```kotlin
 db.readableTransaction {
     val all = userAdapter.select().list()
-    val ada = (userAdapter.select() where (User_Table.name eq "Ada")).single()
-    val maybe = (userAdapter.select() where (User_Table.id eq 1)).singleOrNull()
+    val ada = (userAdapter.select() where (User.name eq "Ada")).single()
+    val maybe = (userAdapter.select() where (User.id eq 1)).singleOrNull()
 }
 ```
 
@@ -15,7 +15,7 @@ db.readableTransaction {
 ## Columns
 
 ```kotlin
-userAdapter.select(User_Table.id, User_Table.name)
+userAdapter.select(User.id, User.name)
 ```
 
 ## Count / exists
@@ -23,7 +23,7 @@ userAdapter.select(User_Table.id, User_Table.name)
 ```kotlin
 db.readableTransaction {
     val count = userAdapter.selectCountOf().execute()
-    val anyAda = (userAdapter.selectCountOf() where (User_Table.name eq "Ada")).hasData()
+    val anyAda = (userAdapter.selectCountOf() where (User.name eq "Ada")).hasData()
 }
 ```
 
@@ -42,13 +42,14 @@ See [query models](../advanced-usage/querymodels.md).
 ## `select from`
 
 ```kotlin
-(select from userAdapter where (User_Table.name eq "Ada")).list()
+(select from userAdapter where (User.name eq "Ada")).list()
+(select from User where (User.name eq "Ada")).list()
 
-// needs DatabaseObjectLookup.loadHolder(...)
-(select from User::class where (User_Table.name eq "Ada")).list()
+// after createDB, KClass lookup also works
+(select from User::class where (User.name eq "Ada")).list()
 ```
 
-Adapters on the database instance do not need the holder.
+`createDB` registers adapters so KClass lookups work after open.
 
 ## Raw cursor
 

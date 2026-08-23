@@ -10,81 +10,92 @@ import com.dbflow5.codegen.shared.typeConverter
 import com.dbflow5.codegen.shared.writer.TypeCreator
 import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.MemberNames
 import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.PropertySpec
 
 /**
- * Description: Writes a property on the [ClassModel] companion.
+ * Writes a column property as an extension on [com.dbflow5.adapter.AdapterCompanion].
  */
 class FieldPropertyWriter(
     private val typeConverterCache: TypeConverterCache,
 ) : TypeCreator<Pair<ClassModel, FieldModel>, PropertySpec> {
 
-    override fun create(input: Pair<ClassModel, FieldModel>): PropertySpec {
-        val (classModel, model) = input
-        if (model.hasTypeConverter(typeConverterCache)) {
-            val typeConverterModel = model.typeConverter(typeConverterCache)
+    override fun create(model: Pair<ClassModel, FieldModel>): PropertySpec {
+        val (classModel, field) = model
+        if (field.hasTypeConverter(typeConverterCache)) {
+            val typeConverterModel = field.typeConverter(typeConverterCache)
             val nullableDataTypeName = typeConverterModel.dataTypeName
-                .copy(nullable = model.classType.isNullable)
+                .copy(nullable = field.classType.isNullable)
             return PropertySpec.builder(
-                model.propertyName,
+                field.propertyName,
                 ClassNames.typeConvertedProperty(
                     nullableDataTypeName,
-                    model.classType,
+                    field.classType,
                     classModel.classType,
                 )
             )
-                .addAnnotation(JvmField::class)
-                .initializer(
-                    CodeBlock.builder()
-                        .apply {
-                            add(
-                                "%M(",
-                                MemberNames.typeConvertedProperty,
-                            )
-                            if (!nullableDataTypeName.isNullable) {
-                                add("%M(),", MemberNames.classToken)
-                            }
-                            // add non-null tokens to skirt platform clashes.
-                            if (!model.classType.isNullable) {
-                                add("%M(),", MemberNames.classToken)
-                            }
-                            add(
-                                "%S) { ",
-                                model.dbName,
-                            )
-                            when (typeConverterModel) {
-                                is TypeConverterModel.Simple -> listOf(typeConverterModel)
-                                is TypeConverterModel.Chained -> typeConverterModel.chainedConverters.toMutableList()
-                                    .apply { add(0, typeConverterModel) }
-                            }.reversed()
-                                .forEachIndexed { index, model ->
-                                    if (index > 0) {
-                                        add(".%M(", MemberNames.chain)
-                                    }
-                                    add("%T()", model.classType)
-                                    if (index > 0) {
-                                        add(")")
-                                    }
-                                }
-
-                            add("}")
-                        }
+                .getter(
+                    FunSpec.getterBuilder()
+                        .addCode("return ")
+                        .addCode(typeConvertedInitializer(field, typeConverterModel, nullableDataTypeName))
                         .build()
                 )
                 .build()
         }
         return PropertySpec.builder(
-            model.propertyName,
-            ClassNames.propertyStart(model.classType, classModel.classType)
+            field.propertyName,
+            ClassNames.propertyStart(field.classType, classModel.classType)
         )
-            .addAnnotation(JvmField::class)
-            .initializer(
-                "%M<%T, %T>(%S)",
-                MemberNames.property,
-                model.classType,
-                classModel.classType,
-                model.dbName
+            .getter(
+                FunSpec.getterBuilder()
+                    .addStatement(
+                        "return %M<%T, %T>(%S)",
+                        MemberNames.property,
+                        field.classType,
+                        classModel.classType,
+                        field.dbName
+                    )
+                    .build()
             )
             .build()
     }
+
+    private fun typeConvertedInitializer(
+        model: FieldModel,
+        typeConverterModel: TypeConverterModel,
+        nullableDataTypeName: com.squareup.kotlinpoet.TypeName,
+    ): CodeBlock = CodeBlock.builder()
+        .apply {
+            add(
+                "%M(",
+                MemberNames.typeConvertedProperty,
+            )
+            if (!nullableDataTypeName.isNullable) {
+                add("%M(),", MemberNames.classToken)
+            }
+            if (!model.classType.isNullable) {
+                add("%M(),", MemberNames.classToken)
+            }
+            add(
+                "%S) { ",
+                model.dbName,
+            )
+            when (typeConverterModel) {
+                is TypeConverterModel.Simple -> listOf(typeConverterModel)
+                is TypeConverterModel.Chained -> typeConverterModel.chainedConverters.toMutableList()
+                    .apply { add(0, typeConverterModel) }
+            }.reversed()
+                .forEachIndexed { index, converter ->
+                    if (index > 0) {
+                        add(".%M(", MemberNames.chain)
+                    }
+                    add("%T()", converter.classType)
+                    if (index > 0) {
+                        add(")")
+                    }
+                }
+
+            add("}")
+        }
+        .build()
 }

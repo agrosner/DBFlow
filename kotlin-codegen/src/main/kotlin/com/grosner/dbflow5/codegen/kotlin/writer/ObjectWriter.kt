@@ -30,7 +30,6 @@ class ObjectWriter(
     private val typeConverterCache: TypeConverterCache,
     private val classWriter: ClassWriter,
     private val databaseWriter: DatabaseWriter,
-    private val databaseHolderWriter: DatabaseHolderWriter,
     private val manyClassWriter: ManyToManyClassWriter,
     private val oneToManyClassWriter: OneToManyClassWriter,
     private val typeConverterWriter: InlineTypeConverterWriter,
@@ -114,7 +113,6 @@ class ObjectWriter(
             typeConverterCache.generatedTypeConverters.map(typeConverterWriter::create),
             classes.map(classWriter::create),
             databases.map(databaseWriter::create),
-            listOf(holderModel).map(databaseHolderWriter::create),
             manyToManyModels.map(manyClassWriter::create),
             oneToManyModels.map(oneToManyClassWriter::create),
         )

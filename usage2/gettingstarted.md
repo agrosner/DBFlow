@@ -17,7 +17,7 @@ data class User(
 )
 ```
 
-The plugin emits `AppDatabase_Database` (a `DBCreator`) and `User_Table` (column properties).
+The plugin emits `AppDatabase_Database` (a `DBCreator`) and `User` (column properties).
 
 ## 2. Open the database
 
@@ -60,7 +60,7 @@ db.writableTransaction {
     userAdapter.save(User(name = "Ada"))
 
     val users = userAdapter.select().list()
-    val ada = (userAdapter.select() where (User_Table.name eq "Ada")).single()
+    val ada = (userAdapter.select() where (User.name eq "Ada")).single()
 }
 ```
 
@@ -73,7 +73,7 @@ Pass `AppDatabase` (or its adapters) into repositories. Do not look up a global 
 ```kotlin
 class UserRepository(private val db: AppDatabase) {
     suspend fun usersNamed(name: String): List<User> = db.writableTransaction {
-        (userAdapter.select() where (User_Table.name eq name)).list()
+        (userAdapter.select() where (User.name eq name)).list()
     }
 }
 ```
@@ -82,4 +82,4 @@ class UserRepository(private val db: AppDatabase) {
 
 - Models can be `data class`es with `val` properties.
 - `@Table(allFields = true)` (default) maps every property. Mark the primary key. Use `@ColumnIgnore` to skip a property.
-- Same-module **main** code cannot reference `User_Table` in the compilation that generates it. Put usage in tests or another module, or compile metadata first. See [install](including-in-project.md#generated-sources).
+- Same-module **main** code cannot reference `User` in the compilation that generates it. Put usage in tests or another module, or compile metadata first. See [install](including-in-project.md#generated-sources).

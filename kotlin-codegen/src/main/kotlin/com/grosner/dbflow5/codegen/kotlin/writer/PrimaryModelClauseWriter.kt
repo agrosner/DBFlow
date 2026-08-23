@@ -39,8 +39,8 @@ class PrimaryModelClauseWriter(
                         )
                         model.primaryFlattenedFields(referencesCache).forEach { field ->
                             add(
-                                "%L.%L %L %N.%L,\n",
-                                model.generatedClassName.className,
+                                "%T.%L %L %N.%L,\n",
+                                ClassNames.generatedAdapterCompanion(model.classType),
                                 field.propertyName,
                                 MemberNames.eq,
                                 "model",

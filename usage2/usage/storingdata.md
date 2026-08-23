@@ -33,13 +33,13 @@ db.writableTransaction {
 ```kotlin
 db.writableTransaction {
     (userAdapter.update()
-        set (User_Table.name eq "Grace")
-        where (User_Table.name eq "Ada")).execute()
+        set (User.name eq "Grace")
+        where (User.name eq "Ada")).execute()
 
-    (userAdapter.delete() where (User_Table.name eq "Grace")).execute()
+    (userAdapter.delete() where (User.name eq "Grace")).execute()
 
     userAdapter.insert(
-        User_Table.name.eq("Lin"),
+        User.name.eq("Lin"),
     ).execute()
 }
 ```

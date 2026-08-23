@@ -7,7 +7,6 @@ import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.TestDatabase_Database
 import com.dbflow5.test.TestRule
 import com.dbflow5.test.TwoColumnModel
-import com.dbflow5.test.TwoColumnModel_Table
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -20,7 +19,7 @@ class CoroutinesTest : TestRule()  {
 
     @Test
     fun testRetrievalFlow() = dbRule.runTest {
-        (twoColumnModelAdapter.select() where TwoColumnModel_Table.id.eq(5))
+        (twoColumnModelAdapter.select() where TwoColumnModel.id.eq(5))
             .toFlow(db, runQueryOnCollect = false) { single() }
             .test {
                 val simpleModel = TwoColumnModel(name = "Name", id = 5)

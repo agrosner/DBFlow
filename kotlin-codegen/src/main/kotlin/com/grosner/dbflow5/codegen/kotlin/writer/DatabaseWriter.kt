@@ -3,6 +3,8 @@ package com.grosner.dbflow5.codegen.kotlin.writer
 import com.dbflow5.codegen.shared.ClassModel
 import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.codegen.shared.DatabaseModel
+import com.dbflow5.codegen.shared.cache.ReferencesCache
+import com.dbflow5.codegen.shared.distinctAdapterGetters
 import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
 import com.dbflow5.codegen.shared.writer.TypeCreator
 import com.dbflow5.stripQuotes
@@ -29,6 +31,7 @@ import kotlin.reflect.KClass
 class DatabaseWriter(
     private val originatingFileTypeSpecAdder: OriginatingFileTypeSpecAdder,
     private val nameAllocator: NameAllocator,
+    private val referencesCache: ReferencesCache,
 ) : TypeCreator<DatabaseModel, FileSpec> {
 
     override fun create(model: DatabaseModel): FileSpec {
@@ -119,18 +122,7 @@ class DatabaseWriter(
                                                 )
                                                     .build()
                                             )
-                                            .addStatement(
-                                                "%T.loadHolder(%T)",
-                                                ClassNames.DatabaseObjectLookup,
-                                                ClassNames.GeneratedDatabaseHolderFactory,
-                                            )
-                                            .addStatement(
-                                                "return %T.%N(settings = %T(name = %S, platformSettings = platformSettings).settingsFn())",
-                                                ClassNames.GeneratedDatabaseHolderFactory,
-                                                model.factoryFunctionName,
-                                                ClassNames.DBSettings,
-                                                model.name.shortName,
-                                            )
+                                            .addCode(createDatabaseCode(model))
                                             .build()
                                     )
                                     .build()
@@ -199,4 +191,58 @@ class DatabaseWriter(
             }
             .build())
         .build()
+
+    private fun createDatabaseCode(model: DatabaseModel): CodeBlock {
+        val adapters = model.tables + model.queries + model.views
+        return CodeBlock.builder()
+            .apply {
+                addStatement(
+                    "val settings = %T(name = %S, platformSettings = platformSettings).settingsFn()",
+                    ClassNames.DBSettings,
+                    model.name.shortName,
+                )
+                adapters.forEach { obj ->
+                    val name = nameAllocator[obj.generatedClassName]
+                    val adapterGetters = obj.distinctAdapterGetters(referencesCache)
+                    addStatement(
+                        "val %N = %M(${adapterGetters.joinToString { "%N = { %N }" }})",
+                        name,
+                        obj.generatedAdapterName(nameAllocator).memberName,
+                        *adapterGetters.map {
+                            "${it.generatedFieldName}Getter" to nameAllocator[it.generatedClassName]
+                        }
+                            .fold(mutableListOf<String>()) { acc, (x, y) ->
+                                acc.apply {
+                                    add(x)
+                                    add(y)
+                                }
+                            }
+                            .toTypedArray(),
+                    )
+                }
+                if (adapters.isNotEmpty()) {
+                    addStatement(
+                        "%T.registerAdapters(${adapters.joinToString { "%N" }})",
+                        ClassNames.DatabaseObjectLookup,
+                        *adapters.map { nameAllocator[it.generatedClassName] }.toTypedArray(),
+                    )
+                }
+                addStatement(
+                    "return %T(settings, ${model.adapterFields.joinToString { "_%L = %N" }})",
+                    model.generatedClassName.className,
+                    *model.adapterFields
+                        .map { fieldModel ->
+                            fieldModel.name.shortName to nameAllocator[fieldModel.associatedClassModel.generatedClassName]
+                        }
+                        .fold(mutableListOf<String>()) { acc, (x, y) ->
+                            acc.apply {
+                                add(x)
+                                add(y)
+                            }
+                        }
+                        .toTypedArray(),
+                )
+            }
+            .build()
+    }
 }

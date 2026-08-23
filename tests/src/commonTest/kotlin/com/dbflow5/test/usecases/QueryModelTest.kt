@@ -5,10 +5,10 @@ import com.dbflow5.query.select
 import com.dbflow5.test.Author
 import com.dbflow5.test.AuthorNameQuery
 import com.dbflow5.test.Blog
-import com.dbflow5.test.Blog_Table
 import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.TestDatabase_Database
 import com.dbflow5.test.TestRule
+import com.dbflow5.test.author_id
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -33,11 +33,11 @@ class QueryModelTest: TestRule() {
         assertTrue(blogAdapter.exists(blogModel))
 
         val result: AuthorNameQuery = (blogAdapter.select(
-            Blog_Table.name.withTable().`as`("blogName"),
-            Blog_Table.id.withTable().`as`("authorId"),
-            Blog_Table.id.withTable().`as`("blogId")
+            Blog.name.withTable().`as`("blogName"),
+            Blog.id.withTable().`as`("authorId"),
+            Blog.id.withTable().`as`("blogId")
         ) innerJoin
-            authorAdapter on (Blog_Table.author_id.withTable() eq Blog_Table.id.withTable()))
+            authorAdapter on (Blog.author_id.withTable() eq Blog.id.withTable()))
             .single(authorNameQueryAdapter)
         assertEquals(authorModel.id, result.authorId)
         assertEquals(blogModel.id, result.blogId)

@@ -5,7 +5,6 @@ import com.dbflow5.query.select
 import com.dbflow5.query.selectCountOf
 import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.SimpleModel
-import com.dbflow5.test.SimpleModel_Table
 import com.dbflow5.test.TestDatabase_Database
 import com.dbflow5.test.TestRule
 import kotlinx.coroutines.test.runTest
@@ -37,7 +36,7 @@ class DeleteTest : TestRule()  {
                 )
             )
 
-            val where = simpleModelAdapter.delete().where(SimpleModel_Table.name eq "name")
+            val where = simpleModelAdapter.delete().where(SimpleModel.name eq "name")
             assertEquals("DELETE FROM `SimpleModel` WHERE `name` = 'name'", where.query.trim())
             assertTrue(where.execute() > 0)
 

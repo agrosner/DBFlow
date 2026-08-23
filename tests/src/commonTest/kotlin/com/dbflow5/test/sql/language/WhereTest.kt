@@ -9,10 +9,10 @@ import com.dbflow5.query.operations.match
 import com.dbflow5.query.orderBy
 import com.dbflow5.query.select
 import com.dbflow5.test.DatabaseTestRule
-import com.dbflow5.test.SimpleModel_Table
+import com.dbflow5.test.SimpleModel
 import com.dbflow5.test.TestDatabase_Database
 import com.dbflow5.test.TestRule
-import com.dbflow5.test.TwoColumnModel_Table
+import com.dbflow5.test.TwoColumnModel
 import com.dbflow5.test.assertEquals
 import kotlin.test.Test
 
@@ -22,7 +22,7 @@ class WhereTest : TestRule() {
 
     @Test
     fun validateBasicWhere() = dbRule {
-        val query = simpleModelAdapter.select() where (SimpleModel_Table.name eq "name")
+        val query = simpleModelAdapter.select() where (SimpleModel.name eq "name")
         "SELECT * FROM `SimpleModel` WHERE `name` = 'name'".assertEquals(query)
     }
 
@@ -30,11 +30,11 @@ class WhereTest : TestRule() {
     fun validateComplexQueryWhere() = dbRule {
         val query = (
             twoColumnModelAdapter.select()
-                where (TwoColumnModel_Table.name eq "name")
-                or (TwoColumnModel_Table.id eq 1)
+                where (TwoColumnModel.name eq "name")
+                or (TwoColumnModel.id eq 1)
                 and (
-                TwoColumnModel_Table.id eq 0
-                    or (TwoColumnModel_Table.name eq "hi")))
+                TwoColumnModel.id eq 0
+                    or (TwoColumnModel.name eq "hi")))
         ("SELECT * FROM `TwoColumnModel` " +
             "WHERE `name` = 'name' " +
             "OR `id` = 1 " +
@@ -46,8 +46,8 @@ class WhereTest : TestRule() {
     fun validateGroupBy() = dbRule {
         val query = (
             simpleModelAdapter.select()
-                where SimpleModel_Table.name.eq("name")
-                groupBy SimpleModel_Table.name
+                where SimpleModel.name.eq("name")
+                groupBy SimpleModel.name
             )
         "SELECT * FROM `SimpleModel` WHERE `name` = 'name' GROUP BY `name`".assertEquals(query)
     }
@@ -55,7 +55,7 @@ class WhereTest : TestRule() {
     @Test
     fun validateGroupByNameAlias() = dbRule {
         val query =
-            (simpleModelAdapter.select() where SimpleModel_Table.name.eq("name")).groupBy(
+            (simpleModelAdapter.select() where SimpleModel.name.eq("name")).groupBy(
                 "name".nameAlias,
                 "id".nameAlias
             )
@@ -66,10 +66,10 @@ class WhereTest : TestRule() {
     fun validateGroupByNameProps() = dbRule {
         val query = (
             twoColumnModelAdapter.select()
-                where TwoColumnModel_Table.name.eq("name"))
+                where TwoColumnModel.name.eq("name"))
             .groupBy(
-                TwoColumnModel_Table.name,
-                TwoColumnModel_Table.id
+                TwoColumnModel.name,
+                TwoColumnModel.id
             )
         "SELECT * FROM `TwoColumnModel` WHERE `name` = 'name' GROUP BY `name`,`id`".assertEquals(
             query
@@ -79,8 +79,8 @@ class WhereTest : TestRule() {
     @Test
     fun validateHaving() = dbRule {
         val query = (simpleModelAdapter.select()
-            where SimpleModel_Table.name.eq("name")
-            having SimpleModel_Table.name.like("That")
+            where SimpleModel.name.eq("name")
+            having SimpleModel.name.like("That")
             )
         ("SELECT * FROM `SimpleModel` " +
             "WHERE `name` = 'name' " +
@@ -100,13 +100,13 @@ class WhereTest : TestRule() {
     @Test
     fun validateLimit() = dbRule {
         val query =
-            simpleModelAdapter.select() where SimpleModel_Table.name.eq("name") limit 10
+            simpleModelAdapter.select() where SimpleModel.name.eq("name") limit 10
         "SELECT * FROM `SimpleModel` WHERE `name` = 'name' LIMIT 10".assertEquals(query)
     }
 
     @Test
     fun validateOffset() = dbRule {
-        val query = simpleModelAdapter.select() where SimpleModel_Table.name.eq("name") offset 10
+        val query = simpleModelAdapter.select() where SimpleModel.name.eq("name") offset 10
         "SELECT * FROM `SimpleModel` WHERE `name` = 'name' OFFSET 10".assertEquals(query)
     }
 
@@ -115,8 +115,8 @@ class WhereTest : TestRule() {
         val query = (
             simpleModelAdapter.select()
                 whereExists (
-                simpleModelAdapter.select(SimpleModel_Table.name)
-                    where SimpleModel_Table.name.like("Andrew")
+                simpleModelAdapter.select(SimpleModel.name)
+                    where SimpleModel.name.like("Andrew")
                 )
             )
         ("SELECT * FROM `SimpleModel` " +
@@ -128,14 +128,14 @@ class WhereTest : TestRule() {
     @Test
     fun validateOrderByWhere() = dbRule {
         val query = (simpleModelAdapter.select()
-            where SimpleModel_Table.name.eq("name")).orderBy(SimpleModel_Table.name, true)
+            where SimpleModel.name.eq("name")).orderBy(SimpleModel.name, true)
         ("SELECT * FROM `SimpleModel` WHERE `name` = 'name' ORDER BY `name` ASC").assertEquals(query)
     }
 
     @Test
     fun validateOrderByWhereAlias() = dbRule {
         val query = (simpleModelAdapter.select()
-            where SimpleModel_Table.name.eq("name"))
+            where SimpleModel.name.eq("name"))
             .orderBy("name".nameAlias, true)
         ("SELECT * FROM `SimpleModel` " +
             "WHERE `name` = 'name' ORDER BY `name` ASC").assertEquals(query)
@@ -144,7 +144,7 @@ class WhereTest : TestRule() {
     @Test
     fun validateOrderBy() = dbRule {
         val query = (simpleModelAdapter.select()
-            where SimpleModel_Table.name.eq("name") orderBy orderBy("name".nameAlias).asc())
+            where SimpleModel.name.eq("name") orderBy orderBy("name".nameAlias).asc())
         ("SELECT * FROM `SimpleModel` " +
             "WHERE `name` = 'name' ORDER BY `name` ASC").assertEquals(query)
     }
@@ -152,7 +152,7 @@ class WhereTest : TestRule() {
     @Test
     fun validateOrderByAll() = dbRule {
         val query = (twoColumnModelAdapter.select()
-            where TwoColumnModel_Table.name.eq("name")
+            where TwoColumnModel.name.eq("name")
             orderByAll listOf(
             orderBy("name".nameAlias).asc(),
             orderBy("id".nameAlias).desc()
@@ -163,7 +163,7 @@ class WhereTest : TestRule() {
 
     @Test
     fun validate_match_operator() = dbRule {
-        val query = (simpleModelAdapter.select() where (SimpleModel_Table.name match "%s"))
+        val query = (simpleModelAdapter.select() where (SimpleModel.name match "%s"))
         ("SELECT * FROM `SimpleModel` WHERE `name` MATCH '%s'").assertEquals(query)
     }
 }

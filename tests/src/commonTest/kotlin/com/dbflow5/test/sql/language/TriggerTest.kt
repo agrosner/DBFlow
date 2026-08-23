@@ -9,7 +9,7 @@ import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.SimpleModel
 import com.dbflow5.test.TestDatabase_Database
 import com.dbflow5.test.TestRule
-import com.dbflow5.test.TwoColumnModel_Table
+import com.dbflow5.test.TwoColumnModel
 import com.dbflow5.test.assertEquals
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -28,7 +28,7 @@ class TriggerTest : TestRule()  {
                 "\nEND").assertEquals(
                 simpleModelAdapter.createTrigger("MyTrigger").after().insertOn() begin
                     twoColumnModelAdapter.insert(
-                        TwoColumnModel_Table.name to NameAlias.ofTable(
+                        TwoColumnModel.name to NameAlias.ofTable(
                             "new",
                             "name"
                         )
@@ -52,12 +52,12 @@ class TriggerTest : TestRule()  {
                     ).before().updateOn()
                         begin
                         twoColumnModelAdapter.insert(
-                            TwoColumnModel_Table.name
+                            TwoColumnModel.name
                         ).values(NameAlias.ofTable("new", "name"))
                         and
-                        twoColumnModelAdapter.insert(TwoColumnModel_Table.id)
+                        twoColumnModelAdapter.insert(TwoColumnModel.id)
                             .values(
-                                cast(TwoColumnModel_Table.name.withTable("new")).asInteger()
+                                cast(TwoColumnModel.name.withTable("new")).asInteger()
                             )
 
                 )
@@ -68,17 +68,17 @@ class TriggerTest : TestRule()  {
     fun validateTriggerWorks() = dbRule.runTest {
         val trigger = simpleModelAdapter.createTrigger("MyTrigger").after().insertOn() begin
             twoColumnModelAdapter.insert(
-                TwoColumnModel_Table.name to NameAlias.ofTable(
+                TwoColumnModel.name to NameAlias.ofTable(
                     "new",
                     "name"
                 ),
-                TwoColumnModel_Table.id to 1,
+                TwoColumnModel.id to 1,
             )
         trigger.execute()
         simpleModelAdapter.insert(SimpleModel("Test"))
 
         val result =
-            select from twoColumnModelAdapter where (TwoColumnModel_Table.name eq "Test")
+            select from twoColumnModelAdapter where (TwoColumnModel.name eq "Test")
         assertNotNull(result)
     }
 }

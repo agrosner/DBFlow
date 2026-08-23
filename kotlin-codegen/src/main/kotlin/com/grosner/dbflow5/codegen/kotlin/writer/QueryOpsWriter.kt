@@ -189,10 +189,7 @@ class QueryOpsWriter(
             }
             addStatement(
                 "(%T.%L %L %L)",
-                ClassName(
-                    reference.classType.packageName,
-                    "${reference.classType.simpleName}_Table",
-                ),
+                ClassNames.generatedAdapterCompanion(reference.classType),
                 plain.propertyName,
                 MemberNames.eq,
                 (model.fields[0] as ReferenceHolderModel)
@@ -217,7 +214,7 @@ class QueryOpsWriter(
         val className = field.name
         val generatedTableClassName = ClassName(
             className.packageName,
-            "${field.ksClassType.declaration.simpleName.shortName}_Table",
+            field.ksClassType.declaration.simpleName.shortName,
         )
         val zip = field.references(referencesCache).zip(
             field.references(referencesCache, field.name)
@@ -237,7 +234,7 @@ class QueryOpsWriter(
         zip.mapIndexed { refIndex, (_, referenced) ->
             addCode(
                 "%T.%N.%M(",
-                model.generatedClassName.className,
+                ClassNames.generatedAdapterCompanion(model.classType),
                 referenced.propertyName,
                 MemberNames.infer,
             )
@@ -275,7 +272,7 @@ class QueryOpsWriter(
             }
             addStatement(
                 "(%T.%L %L %L)",
-                generatedTableClassName,
+                ClassNames.generatedAdapterCompanion(generatedTableClassName),
                 plain.propertyName,
                 MemberNames.eq,
                 referenced.propertyName,
@@ -301,7 +298,7 @@ class QueryOpsWriter(
         addCode(
             "val %N = %T.%N.%M(",
             field.name.shortName,
-            model.generatedClassName.className,
+            ClassNames.generatedAdapterCompanion(model.classType),
             field.propertyName,
             MemberNames.infer,
         )

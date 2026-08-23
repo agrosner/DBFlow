@@ -2,7 +2,7 @@ package com.dbflow5.test.usecases
 
 import com.dbflow5.query.select
 import com.dbflow5.test.DatabaseTestRule
-import com.dbflow5.test.Dog2_Table
+import com.dbflow5.test.Dog2
 import com.dbflow5.test.MigratedPrepackagedDB_Database
 import com.dbflow5.test.PrepackagedDB_Database
 import com.dbflow5.test.TestRule
@@ -45,8 +45,8 @@ class PrepackagedDBTest : TestRule()  {
         val list = dog2Adapter.select().list()
         assertTrue(list.isNotEmpty())
         (dog2Adapter.select()
-            where Dog2_Table.breed.eq("NewBreed")
-            and Dog2_Table.newField.eq("New Field Data"))
+            where Dog2.breed.eq("NewBreed")
+            and Dog2.newField.eq("New Field Data"))
             .single()
     }
 }

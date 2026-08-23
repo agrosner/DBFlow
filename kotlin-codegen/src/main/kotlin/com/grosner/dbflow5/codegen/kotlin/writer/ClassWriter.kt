@@ -8,16 +8,10 @@ import com.grosner.dbflow5.codegen.kotlin.writer.classwriter.FieldPropertyWriter
 import com.grosner.dbflow5.codegen.kotlin.writer.classwriter.IndexPropertyWriter
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.FileSpec
-import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import com.squareup.kotlinpoet.PropertySpec
-import com.squareup.kotlinpoet.TypeSpec
-import com.squareup.kotlinpoet.asClassName
-import kotlin.reflect.KClass
 
 /**
- * Description:
+ * Writes adapter helpers. Column properties are extensions on [ClassNames.adapterCompanion].
  */
 class ClassWriter(
     private val fieldPropertyWriter: FieldPropertyWriter,
@@ -35,7 +29,7 @@ class ClassWriter(
 ) : TypeCreator<ClassModel, FileSpec> {
 
     override fun create(model: ClassModel): FileSpec {
-        return FileSpec.builder(model.name.packageName, model.generatedClassName.shortName)
+        return FileSpec.builder(model.name.packageName, "${model.name.shortName}_Adapter")
             .apply {
                 addAnnotation(
                     AnnotationSpec.builder(ClassNames.OptIn)
@@ -55,42 +49,30 @@ class ClassWriter(
                     addFunction(tableOpsWriter.create(model))
                 }
                 addFunction(classAdapterWriter.create(model))
-
-                addType(TypeSpec.objectBuilder(model.generatedClassName.className)
-                    .addModifiers(if (model.isInternal) KModifier.INTERNAL else KModifier.PUBLIC)
-                    .addSuperinterface(
-                        ClassNames.adapterCompanion(
-                            model.classType,
-                        )
+                addType(adapterCompanionFileObject(model.classType))
+                val companionReceiver = ClassNames.adapterCompanion(model.classType)
+                val propertyVisibility = if (model.isInternal) {
+                    arrayOf(KModifier.INTERNAL)
+                } else {
+                    emptyArray()
+                }
+                model.flattenedFields(referencesCache).forEach { field ->
+                    addProperty(
+                        fieldPropertyWriter.create(model to field).toBuilder()
+                            .receiver(companionReceiver)
+                            .addModifiers(*propertyVisibility)
+                            .build()
                     )
-                    .apply {
-                        addProperty(
-                            PropertySpec.builder(
-                                "table", KClass::class.asClassName()
-                                    .parameterizedBy(model.classType)
-                            )
-                                .addModifiers(KModifier.OVERRIDE)
-                                .getter(
-                                    FunSpec.getterBuilder()
-                                        .addStatement(
-                                            "return %T::class",
-                                            model.classType
-                                        )
-                                        .build()
-                                )
-                                .build()
-                        )
-                        model.flattenedFields(referencesCache).forEach { field ->
-                            addProperty(fieldPropertyWriter.create(model to field))
-                        }
-                        model.indexGroups.forEach {
-                            addProperty(indexPropertyWriter.create(it))
-                        }
-                    }
-                    .build()
-                )
+                }
+                model.indexGroups.forEach { group ->
+                    addProperty(
+                        indexPropertyWriter.create(group).toBuilder()
+                            .receiver(companionReceiver)
+                            .addModifiers(*propertyVisibility)
+                            .build()
+                    )
+                }
             }
             .build()
-
     }
 }

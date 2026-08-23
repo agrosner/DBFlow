@@ -46,7 +46,7 @@ val db = createDB<AppDatabase>(DBPlatformSettings()) {
 }
 ```
 
-`createDB` loads `GeneratedDatabaseHolderFactory` so KClass lookups such as `select from User::class` work after open. You can still call `DatabaseObjectLookup.loadHolder` yourself in multi-module apps.
+`createDB` registers generated adapters so KClass lookups such as `select from User::class` work after open. `select from User` uses the table companion and does not need a lookup.
 
 `DBSettings` fields you typically copy:
 

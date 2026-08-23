@@ -2,9 +2,10 @@ package com.dbflow5.test.usecases
 
 import com.dbflow5.dropIndex
 import com.dbflow5.test.DatabaseTestRule
-import com.dbflow5.test.IndexModel_Table
+import com.dbflow5.test.IndexModel
 import com.dbflow5.test.TestDatabase_Database
 import com.dbflow5.test.TestRule
+import com.dbflow5.test.index_firstIndex
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -25,8 +26,8 @@ class IndexModelTest : TestRule()  {
 
     @Test
     fun verifyIndexSQL() = dbRule.runTest {
-        IndexModel_Table.index_firstIndex.execute()
+        IndexModel.index_firstIndex.execute()
 
-        dropIndex(this, IndexModel_Table.index_firstIndex.name)
+        dropIndex(this, IndexModel.index_firstIndex.name)
     }
 }

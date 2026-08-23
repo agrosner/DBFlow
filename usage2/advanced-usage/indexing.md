@@ -14,8 +14,8 @@ data class Person(
 )
 ```
 
-Generated index properties live on `Person_Table`. Use them with `indexedBy` when SQLite should pick that index:
+Generated index properties live on `Person`. Use them with `indexedBy` when SQLite should pick that index:
 
 ```kotlin
-personAdapter.select() indexedBy Person_Table.name_index where (Person_Table.firstName eq "Ada")
+personAdapter.select() indexedBy Person.name_index where (Person.firstName eq "Ada")
 ```

@@ -26,7 +26,7 @@ val db = createDB<AppDatabase>(context) { copy(name = "App") }
 
 db.writableTransaction {
     userAdapter.save(User(name = "Ada"))
-    val users = (userAdapter.select() where (User_Table.name eq "Ada")).list()
+    val users = (userAdapter.select() where (User.name eq "Ada")).list()
 }
 ```
 
@@ -36,7 +36,7 @@ db.writableTransaction {
 | --- | --- |
 | `lib` | Runtime, query DSL, transactions, `Flow` observers |
 | `core` | Annotations and converters (pulled in by `lib`) |
-| `compiler` + plugin `com.dbflow5` | Generates `*_Table`, `*_Database`, and `GeneratedDatabaseHolderFactory` |
+| `compiler` + plugin `com.dbflow5` | Adds table companions, `*_Adapter` helpers, and `*_Database` |
 | `sqlcipher` | Encrypted Android databases |
 | `livedata` / `paging` / `reactive-streams` | Android extras |
 

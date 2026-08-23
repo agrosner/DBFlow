@@ -9,7 +9,7 @@ import com.dbflow5.query.select
 import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.TestDatabase_Database
 import com.dbflow5.test.TestRule
-import com.dbflow5.test.TwoColumnModel_Table
+import com.dbflow5.test.TwoColumnModel
 import com.dbflow5.test.assertEquals
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -57,15 +57,15 @@ class OperatorTest : TestRule() {
 
     @Test
     fun testBetween() {
-        "`id` BETWEEN 6 AND 7".assertEquals(TwoColumnModel_Table.id between 6 and 7)
+        "`id` BETWEEN 6 AND 7".assertEquals(TwoColumnModel.id between 6 and 7)
     }
 
     @Test
     fun testIn() = runTest {
         dbRule {
-            "`id` IN(5,6,7,8,9)".assertEquals(TwoColumnModel_Table.id.`in`(5, 6, 7, 8, 9))
+            "`id` IN(5,6,7,8,9)".assertEquals(TwoColumnModel.id.`in`(5, 6, 7, 8, 9))
             "`id` NOT IN(SELECT * FROM `SimpleModel`)".assertEquals(
-                TwoColumnModel_Table.id.notIn(
+                TwoColumnModel.id.notIn(
                     select from simpleModelAdapter
                 )
             )

@@ -1,8 +1,8 @@
 package com.dbflow5.test.sql.language
 
 import com.dbflow5.test.TestDatabase_Database
-import com.dbflow5.test.SimpleModel_Table
-import com.dbflow5.test.TwoColumnModel_Table
+import com.dbflow5.test.SimpleModel
+import com.dbflow5.test.TwoColumnModel
 import com.dbflow5.query.createIndexOn
 import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.TestRule
@@ -21,7 +21,7 @@ class IndexTest : TestRule()  {
                 "CREATE INDEX IF NOT EXISTS `index` ON `SimpleModel`(`name`)",
                 simpleModelAdapter.createIndexOn(
                     name = "index",
-                    property = SimpleModel_Table.name
+                    property = SimpleModel.name
                 ).query
             )
         }
@@ -34,7 +34,7 @@ class IndexTest : TestRule()  {
                 "CREATE INDEX `index` ON `SimpleModel`(`name`)",
                 simpleModelAdapter.createIndexOn(
                     name = "index",
-                    property = SimpleModel_Table.name,
+                    property = SimpleModel.name,
                     ifNotExists = false,
                 ).query
             )
@@ -48,8 +48,8 @@ class IndexTest : TestRule()  {
                 "CREATE UNIQUE INDEX IF NOT EXISTS `index` ON `TwoColumnModel`(`name`, `id`)",
                 twoColumnModelAdapter.createIndexOn(
                     name = "index",
-                    TwoColumnModel_Table.name,
-                    TwoColumnModel_Table.id,
+                    TwoColumnModel.name,
+                    TwoColumnModel.id,
                 )
                     .unique()
                     .query

@@ -39,11 +39,11 @@ class PropertyGetterWriter(
                         model.flattenedFields(referencesCache).forEach { field ->
                             add(
                                 """
-                    %S -> %L.%L
+                    %S -> %T.%L
                     
                 """.trimIndent(),
                                 field.dbName.quoteIfNeeded(),
-                                model.generatedClassName.className,
+                                ClassNames.generatedAdapterCompanion(model.classType),
                                 field.propertyName,
                             )
                         }

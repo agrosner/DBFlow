@@ -9,5 +9,7 @@ import org.jetbrains.kotlin.fir.extensions.FirExtensionRegistrar
 class DBFlowFirExtensionRegistrar : FirExtensionRegistrar() {
     override fun ExtensionRegistrarContext.configurePlugin() {
         +::DBFlowFirCheckersExtension
+        +::FirTableCompanionGenerationExtension
+        +::FirTableCompanionSupertypeExtension
     }
 }

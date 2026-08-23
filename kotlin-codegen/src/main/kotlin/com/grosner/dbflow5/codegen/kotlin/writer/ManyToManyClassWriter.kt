@@ -77,6 +77,7 @@ class ManyToManyClassWriter(
                          )*/
                         addModifiers(KModifier.DATA)
                         addProperties(paramProperties.map { it.propertySpec })
+                        addType(adapterCompanionObject(classModel.classType))
                     }
                     .build())
             }

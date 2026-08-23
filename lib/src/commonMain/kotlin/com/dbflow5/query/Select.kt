@@ -1,5 +1,6 @@
 package com.dbflow5.query
 
+import com.dbflow5.adapter.AdapterCompanion
 import com.dbflow5.adapter.DBRepresentable
 import com.dbflow5.adapter.WritableDBRepresentable
 import com.dbflow5.database.DatabaseObjectLookup
@@ -34,6 +35,9 @@ object SelectToken {
      */
     infix fun <Table : Any> from(adapter: WritableDBRepresentable<Table>): SelectStart<Table, SelectResult<Table>> =
         adapter.select()
+
+    infix fun <Table : Any> from(companion: AdapterCompanion<Table>): SelectStart<Table, SelectResult<Table>> =
+        from(companion.table)
 
     infix fun <Table : Any> from(table: KClass<Table>): SelectStart<Table, SelectResult<Table>> =
         DatabaseObjectLookup.getDBRepresentable(table).select()

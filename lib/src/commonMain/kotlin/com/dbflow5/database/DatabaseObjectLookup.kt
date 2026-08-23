@@ -4,6 +4,8 @@ package com.dbflow5.database
 
 import com.dbflow5.adapter.DBRepresentable
 import com.dbflow5.adapter.ModelAdapter
+import com.dbflow5.adapter.QueryAdapter
+import com.dbflow5.adapter.QueryRepresentable
 import com.dbflow5.adapter.ViewAdapter
 import com.dbflow5.annotation.opts.DelicateDBFlowApi
 import kotlinx.atomicfu.atomic
@@ -25,8 +27,8 @@ object DatabaseObjectLookup {
             if (!databaseHolderInitialized) {
                 throw IllegalStateException(
                     "The global DatabaseHolder is not initialized. " +
-                        "Ensure you call FlowManager.loadHolder() before dynamically accessing " +
-                        "DB representable types."
+                        "Open a database with createDB or call DatabaseObjectLookup.registerAdapters() " +
+                        "before dynamically accessing DB representable types."
                 )
             }
             return internalDatabaseHolder.currentHolder
@@ -56,6 +58,27 @@ object DatabaseObjectLookup {
 
         // Cache the holder for future reference.
         loadedModules.add(holderFactory)
+    }
+
+    /**
+     * Registers generated adapters so KClass lookups work without a holder factory object.
+     *
+     * Re-registering a type replaces the previous adapter. `create()` runs once per
+     * database instance, and lookups must return the instances belonging to the
+     * newest instance so [DBFlowDatabase.tableObserver] and query-site adapters agree.
+     */
+    @JvmStatic
+    fun registerAdapters(vararg adapters: QueryRepresentable<*>) {
+        val tables = adapters.filterIsInstance<ModelAdapter<*>>().toSet()
+        val views = adapters.filterIsInstance<ViewAdapter<*>>().toSet()
+        val queries = adapters.filterIsInstance<QueryAdapter<*>>().toSet()
+        if (tables.isEmpty() && views.isEmpty() && queries.isEmpty()) return
+        internalDatabaseHolder.currentHolder += DatabaseHolder(
+            tables = tables,
+            views = views,
+            queries = queries,
+        )
+        databaseHolderInitialized = true
     }
 
     /**

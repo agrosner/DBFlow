@@ -8,7 +8,7 @@ val users: Flow<List<User>> =
 ```
 
 ```kotlin
-(userAdapter.select() where (User_Table.name like "A%"))
+(userAdapter.select() where (User.name like "A%"))
     .toFlow(db, runQueryOnCollect = false) { singleOrNull() }
 ```
 

@@ -10,7 +10,6 @@ import com.dbflow5.reactivestreams.transaction.asMaybe
 import com.dbflow5.reactivestreams.transaction.asSingle
 import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.SimpleModel
-import com.dbflow5.test.SimpleModel_Table
 import com.dbflow5.test.TestDatabase_Database
 import org.junit.Assert.assertEquals
 import kotlin.test.Test
@@ -62,7 +61,7 @@ class RXQueryTests {
         var count = 0L
         val subscription = db.beginTransactionAsync {
             (simpleModelAdapter.insert(
-                SimpleModel_Table.name.eq("name")
+                SimpleModel.name.eq("name")
             )).execute()
         }.asSingle()
             .subscribe { c ->

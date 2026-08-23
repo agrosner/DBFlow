@@ -23,11 +23,11 @@ abstract class AppDatabase : DBFlowDatabase<AppDatabase>() {
 ```kotlin
 db.readableTransaction {
     (blogAdapter.select(
-        Blog_Table.name.withTable() `as` "blogName",
-        Blog_Table.author_id.withTable() `as` "authorId",
-        Blog_Table.id.withTable() `as` "blogId",
+        Blog.name.withTable() `as` "blogName",
+        Blog.author_id.withTable() `as` "authorId",
+        Blog.id.withTable() `as` "blogId",
     ) innerJoin authorAdapter
-        on (Blog_Table.author_id.withTable() eq Author_Table.id.withTable()))
+        on (Blog.author_id.withTable() eq Author.id.withTable()))
         .list(authorNameQueryAdapter)
 }
 ```

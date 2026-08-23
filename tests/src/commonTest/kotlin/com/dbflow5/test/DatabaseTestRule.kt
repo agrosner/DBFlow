@@ -2,8 +2,6 @@ package com.dbflow5.test
 
 import com.dbflow5.config.FlowLog
 import com.dbflow5.database.DBFlowDatabase
-import com.dbflow5.database.DatabaseObjectLookup
-import com.dbflow5.database.GeneratedDatabaseHolderFactory
 import com.dbflow5.database.config.DBCreator
 import com.dbflow5.database.config.DBSettings
 import com.dbflow5.mpp.use
@@ -47,7 +45,6 @@ class DatabaseTestRule<DB : DBFlowDatabase<DB>>(
     }
 
     inline fun acquireFreshDatabase(fn: () -> Unit) {
-        DatabaseObjectLookup.loadHolder(GeneratedDatabaseHolderFactory)
         FlowLog.setMinimumLoggingLevel(FlowLog.Level.V)
         creator.create(
             platformSettings(),

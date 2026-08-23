@@ -5,7 +5,7 @@ import com.dbflow5.query.operations.indexProperty
 import com.dbflow5.query.select
 import com.dbflow5.query.update
 import com.dbflow5.test.DatabaseTestRule
-import com.dbflow5.test.SimpleModel_Table
+import com.dbflow5.test.SimpleModel
 import com.dbflow5.test.TestDatabase_Database
 import com.dbflow5.test.TestRule
 import kotlin.test.Test
@@ -21,7 +21,7 @@ class IndexedByTest : TestRule() {
             indexProperty(
                 "Index",
                 false,
-                SimpleModel_Table.name
+                SimpleModel.name
             )
         assertEquals("SELECT * FROM `SimpleModel` INDEXED BY `Index`", indexed.query.trim())
     }
@@ -32,7 +32,7 @@ class IndexedByTest : TestRule() {
             indexProperty(
                 "Index",
                 false,
-                SimpleModel_Table.name
+                SimpleModel.name
             )
         assertEquals("DELETE FROM `SimpleModel` INDEXED BY `Index`", indexed.query.trim())
     }
@@ -43,7 +43,7 @@ class IndexedByTest : TestRule() {
             indexProperty(
                 "Index",
                 false,
-                SimpleModel_Table.name
+                SimpleModel.name
             )
         assertEquals("UPDATE `SimpleModel` INDEXED BY `Index`", indexed.query.trim())
     }

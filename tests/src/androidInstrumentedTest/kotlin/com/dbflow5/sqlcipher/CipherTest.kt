@@ -5,7 +5,6 @@ import com.dbflow5.query.delete
 import com.dbflow5.query.select
 import com.dbflow5.test.CipherDatabase_Database
 import com.dbflow5.test.CipherModel
-import com.dbflow5.test.CipherModel_Table
 import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.TestTransactionDispatcherFactory
 import org.junit.Assert.assertTrue
@@ -34,7 +33,7 @@ class CipherTest {
         assertTrue(cipherAdapter.exists(model))
 
         val retrieval = (cipherAdapter.select()
-            where CipherModel_Table.name.eq("name"))
+            where CipherModel.name.eq("name"))
             .single()
         assertTrue(retrieval.id == model.id)
         cipherAdapter.delete().execute()

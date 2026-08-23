@@ -3,10 +3,12 @@ package com.dbflow5.test.sql.language.property
 import com.dbflow5.test.CustomType
 import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.Difficulty
-import com.dbflow5.test.EnumTypeConverterModel_Table
+import com.dbflow5.test.EnumTypeConverterModel
 import com.dbflow5.test.TestDatabase_Database
 import com.dbflow5.test.TestRule
-import com.dbflow5.test.TypeConverterModel_Table
+import com.dbflow5.test.TypeConverterModel
+import com.dbflow5.test.customType
+import com.dbflow5.test.difficulty
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -17,7 +19,7 @@ class TypeConvertedPropertyTest : TestRule() {
 
     @Test
     fun testTypeConverter() {
-        val property = TypeConverterModel_Table.customType
+        val property = TypeConverterModel.customType
         assertEquals("`customType`", property.query)
 
         val value = CustomType(0)
@@ -36,15 +38,15 @@ class TypeConvertedPropertyTest : TestRule() {
     fun testCustomEnumTypeConverter() {
         assertEquals(
             "`difficulty` = 'H'",
-            EnumTypeConverterModel_Table.difficulty.eq(Difficulty.HARD).query
+            EnumTypeConverterModel.difficulty.eq(Difficulty.HARD).query
         )
         assertEquals(
             "`EnumTypeConverterModel`.`difficulty` = 'H'",
-            EnumTypeConverterModel_Table.difficulty.withTable().eq(Difficulty.HARD).query
+            EnumTypeConverterModel.difficulty.withTable().eq(Difficulty.HARD).query
         )
         assertEquals(
             "`et`.`difficulty` = 'H'",
-            EnumTypeConverterModel_Table.difficulty.withTable(
+            EnumTypeConverterModel.difficulty.withTable(
                 "et"
             ).eq(Difficulty.HARD).query
         )

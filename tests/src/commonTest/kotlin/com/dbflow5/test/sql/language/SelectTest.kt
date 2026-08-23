@@ -5,10 +5,9 @@ import com.dbflow5.query.innerJoin
 import com.dbflow5.query.select
 import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.SimpleModel
-import com.dbflow5.test.SimpleModel_Table
 import com.dbflow5.test.TestDatabase_Database
 import com.dbflow5.test.TestRule
-import com.dbflow5.test.TwoColumnModel_Table
+import com.dbflow5.test.TwoColumnModel
 import com.dbflow5.test.assertEquals
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -24,8 +23,8 @@ class SelectTest : TestRule() {
         dbRule {
             "SELECT `name`, `id` FROM `TwoColumnModel`".assertEquals(
                 twoColumnModelAdapter.select(
-                    TwoColumnModel_Table.name,
-                    TwoColumnModel_Table.id
+                    TwoColumnModel.name,
+                    TwoColumnModel.id
                 )
             )
         }
@@ -35,7 +34,7 @@ class SelectTest : TestRule() {
     fun validateSelectDistinct() {
         dbRule {
             "SELECT DISTINCT `name` FROM `SimpleModel`".assertEquals(
-                simpleModelAdapter.select(TwoColumnModel_Table.name).distinct()
+                simpleModelAdapter.select(TwoColumnModel.name).distinct()
             )
         }
     }
@@ -60,6 +59,10 @@ class SelectTest : TestRule() {
                 expected,
                 (select from SimpleModel::class).query.trim()
             )
+            assertEquals(
+                expected,
+                (select from SimpleModel).query.trim()
+            )
         }
     }
 
@@ -68,7 +71,7 @@ class SelectTest : TestRule() {
         dbRule {
             assertEquals(
                 "SELECT `name` FROM `SimpleModel`",
-                simpleModelAdapter.select(SimpleModel_Table.name).query.trim()
+                simpleModelAdapter.select(SimpleModel.name).query.trim()
             )
         }
     }
@@ -79,9 +82,9 @@ class SelectTest : TestRule() {
             assertEquals(
                 "SELECT `name`, `name`, `id` FROM `SimpleModel`",
                 simpleModelAdapter.select(
-                    SimpleModel_Table.name,
-                    TwoColumnModel_Table.name,
-                    TwoColumnModel_Table.id
+                    SimpleModel.name,
+                    TwoColumnModel.name,
+                    TwoColumnModel.id
                 ).query.trim()
             )
         }
@@ -103,7 +106,7 @@ class SelectTest : TestRule() {
             val from = (
                 simpleModelAdapter.select()
                     innerJoin twoColumnModelAdapter
-                    on SimpleModel_Table.name.eq(TwoColumnModel_Table.name.withTable())
+                    on SimpleModel.name.eq(TwoColumnModel.name.withTable())
                 )
             assertEquals(
                 "SELECT * FROM `SimpleModel` " +

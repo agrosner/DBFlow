@@ -9,7 +9,6 @@ import com.dbflow5.query.update
 import com.dbflow5.structure.ChangeAction
 import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.SimpleModel
-import com.dbflow5.test.SimpleModel_Table
 import com.dbflow5.test.TestDatabase_Database
 import com.dbflow5.test.TestRule
 import kotlin.test.Test
@@ -72,7 +71,7 @@ class DirectNotifierTest : TestRule() {
     fun validateCanNotifyWrapperClasses() = dbRule.runTest {
         (modelNotifier as DirectModelNotifier).notificationFlow
             .test {
-                simpleModelAdapter.insert(SimpleModel_Table.name to "name")
+                simpleModelAdapter.insert(SimpleModel.name to "name")
                     .execute()
 
                 assertEquals(
@@ -83,7 +82,7 @@ class DirectNotifierTest : TestRule() {
                     awaitItem(),
                 )
 
-                (simpleModelAdapter.update() set SimpleModel_Table.name.eq("name2"))
+                (simpleModelAdapter.update() set SimpleModel.name.eq("name2"))
                     .execute()
 
                 assertEquals(

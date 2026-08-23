@@ -95,7 +95,7 @@ The plugin writes Kotlin to `build/generated/dbflow/commonMain/kotlin` at the **
 Practical setup:
 
 1. Put `@Table` / `@Database` in `commonMain`.
-2. Consume `*_Table` / `*_Database` in a **later** compilation — `commonTest`, another module, or a compile that `dependsOn` metadata generation.
+2. Consume companion column properties (`User.name`), `*_Adapter` helpers, and `*_Database` in a **later** compilation — `commonTest`, another module, or a compile that `dependsOn` metadata generation. `select from User` type-checks in the defining compilation because the plugin adds the companion.
 
 The test module in this repo generates during `compileKotlinMetadata`, then platform compiles depend on that task and add the generated directory to `commonTest`.
 

@@ -80,6 +80,15 @@ inline fun <reified ValueType, Table : Any> AdapterCompanion<Table>.property(
     )
 }
 
+/**
+ * Non-inline factory used by the compiler plugin to fill companion column getters.
+ */
+@Suppress("UNCHECKED_CAST")
+fun <ValueType, Table : Any> AdapterCompanion<Table>.generatedColumnProperty(
+    columnName: String,
+): PropertyStart<ValueType, Table> =
+    property(columnName, InferredObjectConverter as SQLValueConverter<ValueType>)
+
 internal data class PropertyImpl<ValueType, Table : Any>(
         override val adapter: WritableDBRepresentable<Table>,
         override val nameAlias: NameAlias,

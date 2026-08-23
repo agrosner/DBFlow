@@ -4,13 +4,13 @@ You work with three generated pieces:
 
 1. **`{Db}_Database`** — `DBCreator` plus the concrete `DBFlowDatabase`
 2. **Adapters** — `userAdapter.save()`, `userAdapter.select()`
-3. **`{Table}_Table`** — `User_Table.name` in `where` / `set`
+3. **Model companions** — `User.name` in `where` / `set`, and `select from User`
 
 ```kotlin
 db.writableTransaction {
     userAdapter.save(User(name = "Ada"))
-    (userAdapter.select() where (User_Table.name eq "Ada")).single()
-    (userAdapter.update() set (User_Table.name eq "Grace") where (User_Table.name eq "Ada")).execute()
+    (userAdapter.select() where (User.name eq "Ada")).single()
+    (userAdapter.update() set (User.name eq "Grace") where (User.name eq "Ada")).execute()
 }
 ```
 

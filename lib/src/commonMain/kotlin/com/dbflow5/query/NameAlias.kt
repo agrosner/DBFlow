@@ -127,6 +127,36 @@ class NameAlias(
     override fun toString(): String = fullQuery
 
     /**
+     * Structural equality so operators and notifications built from separately
+     * constructed properties compare equal (generated column getters create a
+     * fresh [NameAlias] on every access).
+     */
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is NameAlias) return false
+        return name == other.name &&
+            aliasName == other.aliasName &&
+            tableName == other.tableName &&
+            keyword == other.keyword &&
+            shouldStripIdentifier == other.shouldStripIdentifier &&
+            shouldStripAliasName == other.shouldStripAliasName &&
+            shouldAddIdentifierToQuery == other.shouldAddIdentifierToQuery &&
+            shouldAddIdentifierToAliasName == other.shouldAddIdentifierToAliasName
+    }
+
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + (aliasName?.hashCode() ?: 0)
+        result = 31 * result + (tableName?.hashCode() ?: 0)
+        result = 31 * result + (keyword?.hashCode() ?: 0)
+        result = 31 * result + shouldStripIdentifier.hashCode()
+        result = 31 * result + shouldStripAliasName.hashCode()
+        result = 31 * result + shouldAddIdentifierToQuery.hashCode()
+        result = 31 * result + shouldAddIdentifierToAliasName.hashCode()
+        return result
+    }
+
+    /**
      * @return Constructs a builder as a new instance that can be modified without fear.
      */
     fun newBuilder(): Builder {

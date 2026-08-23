@@ -70,6 +70,9 @@ object ClassNames {
         ClassName(PackageNames.Adapter, "AdapterCompanion")
             .parameterizedBy(typeName)
 
+    fun generatedAdapterCompanion(modelType: ClassName): ClassName =
+        ClassName(modelType.packageName, "${modelType.simpleName}_AdapterCompanion")
+
     fun tableBinder(tableTypeName: TypeName) = ClassName(PackageNames.Adapter, "TableBinder")
         .parameterizedBy(tableTypeName)
 

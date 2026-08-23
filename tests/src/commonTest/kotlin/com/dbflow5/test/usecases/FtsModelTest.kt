@@ -10,9 +10,7 @@ import com.dbflow5.query.operations.tableNameLiteral
 import com.dbflow5.query.select
 import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.Fts4ContentModel
-import com.dbflow5.test.Fts4ContentModel_Table
 import com.dbflow5.test.Fts4VirtualModel
-import com.dbflow5.test.Fts4VirtualModel_Table
 import com.dbflow5.test.TestDatabase
 import com.dbflow5.test.TestDatabase_Database
 import com.dbflow5.test.TestRule
@@ -65,8 +63,8 @@ class FtsModelTest : TestRule()  {
         ))
         val rows = (fts4VirtualModelAdapter.insert(
             fts4VirtualModelAdapter.docId(),
-            Fts4VirtualModel_Table.name
-        ) select fts4ContentModelAdapter.select(Fts4ContentModel_Table.id, Fts4ContentModel_Table.name))
+            Fts4VirtualModel.name
+        ) select fts4ContentModelAdapter.select(Fts4ContentModel.id, Fts4ContentModel.name))
             .execute()
         assertTrue(rows > 0)
         val value =
@@ -94,8 +92,8 @@ class FtsModelTest : TestRule()  {
 
         val rowID = (fts4VirtualModelAdapter.insert(
             fts4VirtualModelAdapter.docId(),
-            Fts4VirtualModel_Table.name
-        ) select fts4ContentModelAdapter.select(Fts4ContentModel_Table.id, Fts4ContentModel_Table.name)).execute()
+            Fts4VirtualModel.name
+        ) select fts4ContentModelAdapter.select(Fts4ContentModel.id, Fts4ContentModel.name)).execute()
         assertTrue(rowID > 0)
     }
 }

@@ -20,6 +20,7 @@ internal class DBFlowIrGenerationExtension(
 
     override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
         CreateDbIrTransformer(pluginContext).transform(moduleFragment)
+        CompanionPropertyIrTransformer(pluginContext).transform(moduleFragment)
         val output = File(
             generatedDir ?: System.getProperty(GENERATED_DIR_PROPERTY).orEmpty().ifEmpty { return }
         )

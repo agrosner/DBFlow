@@ -1,6 +1,6 @@
 package com.dbflow5.test.sql.language
 
-import com.dbflow5.test.TwoColumnModel_Table
+import com.dbflow5.test.TwoColumnModel
 import com.dbflow5.query.methods.avg
 import com.dbflow5.query.methods.cast
 import com.dbflow5.query.methods.count
@@ -25,39 +25,39 @@ class MethodTest {
     fun testMainMethods() {
         assertEquals(
             "AVG(`name`, `id`)",
-            avg(TwoColumnModel_Table.name, TwoColumnModel_Table.id).query
+            avg(TwoColumnModel.name, TwoColumnModel.id).query
         )
         assertEquals(
             "COUNT(`name`, `id`)",
-            count(TwoColumnModel_Table.name, TwoColumnModel_Table.id).query
+            count(TwoColumnModel.name, TwoColumnModel.id).query
         )
         assertEquals(
             "GROUP_CONCAT(`name`, `id`)",
-            groupConcat(TwoColumnModel_Table.name, TwoColumnModel_Table.id).query
+            groupConcat(TwoColumnModel.name, TwoColumnModel.id).query
         )
         assertEquals(
             "MAX(`name`, `id`)",
-            max<Any>()(TwoColumnModel_Table.name, TwoColumnModel_Table.id).query
+            max<Any>()(TwoColumnModel.name, TwoColumnModel.id).query
         )
         assertEquals(
             "MIN(`name`, `id`)",
-            min<Any>()(TwoColumnModel_Table.name, TwoColumnModel_Table.id).query
+            min<Any>()(TwoColumnModel.name, TwoColumnModel.id).query
         )
         assertEquals(
             "SUM(`name`, `id`)",
-            sum(TwoColumnModel_Table.name, TwoColumnModel_Table.id).query
+            sum(TwoColumnModel.name, TwoColumnModel.id).query
         )
         assertEquals(
             "TOTAL(`name`, `id`)",
-            total(TwoColumnModel_Table.name, TwoColumnModel_Table.id).query
+            total(TwoColumnModel.name, TwoColumnModel.id).query
         )
         assertEquals(
             "CAST(`name` AS INTEGER)",
-            cast(TwoColumnModel_Table.name).asInteger().query
+            cast(TwoColumnModel.name).asInteger().query
         )
         assertEquals(
             "REPLACE(`name`, 'Andrew', 'Grosner')",
-            replace(TwoColumnModel_Table.name, "Andrew", "Grosner").query
+            replace(TwoColumnModel.name, "Andrew", "Grosner").query
         )
     }
 
@@ -86,7 +86,7 @@ class MethodTest {
     fun testIfNull() {
         assertEquals(
             "IFNULL(`name`, `id`)",
-            ifNull(TwoColumnModel_Table.name, TwoColumnModel_Table.id).query
+            ifNull(TwoColumnModel.name, TwoColumnModel.id).query
         )
     }
 
@@ -94,7 +94,7 @@ class MethodTest {
     fun testNulllIf() {
         assertEquals(
             "NULLIF(`name`, `id`)",
-            nullIf(TwoColumnModel_Table.name, TwoColumnModel_Table.id).query
+            nullIf(TwoColumnModel.name, TwoColumnModel.id).query
         )
     }
 
@@ -107,35 +107,35 @@ class MethodTest {
     fun testOpMethods() {
         assertEquals(
             "AVG(`name` + `id`)",
-            avg(TwoColumnModel_Table.name + TwoColumnModel_Table.id).query
+            avg(TwoColumnModel.name + TwoColumnModel.id).query
         )
         assertEquals(
             "AVG(`name` + `id`)",
-            avg(TwoColumnModel_Table.name + TwoColumnModel_Table.id).query
+            avg(TwoColumnModel.name + TwoColumnModel.id).query
         )
         assertEquals(
             "AVG(`name` - `id`)",
-            avg(TwoColumnModel_Table.name - TwoColumnModel_Table.id).query
+            avg(TwoColumnModel.name - TwoColumnModel.id).query
         )
         assertEquals(
             "AVG(`name` - `id`)",
-            avg(TwoColumnModel_Table.name - TwoColumnModel_Table.id).query
+            avg(TwoColumnModel.name - TwoColumnModel.id).query
         )
         assertEquals(
             "AVG(`name` / `id`)",
-            avg(TwoColumnModel_Table.name / TwoColumnModel_Table.id).query
+            avg(TwoColumnModel.name / TwoColumnModel.id).query
         )
         assertEquals(
             "AVG(`name` * `id`)",
-            avg(TwoColumnModel_Table.name * TwoColumnModel_Table.id).query
+            avg(TwoColumnModel.name * TwoColumnModel.id).query
         )
         assertEquals(
             "AVG(`name` % `id`)",
-            avg(TwoColumnModel_Table.name % TwoColumnModel_Table.id).query
+            avg(TwoColumnModel.name % TwoColumnModel.id).query
         )
         assertEquals(
             "AVG(`name` % `id`)",
-            avg(TwoColumnModel_Table.name % TwoColumnModel_Table.id).query
+            avg(TwoColumnModel.name % TwoColumnModel.id).query
         )
     }
 }

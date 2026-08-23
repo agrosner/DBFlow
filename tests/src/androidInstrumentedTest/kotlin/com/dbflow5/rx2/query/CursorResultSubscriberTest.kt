@@ -3,7 +3,6 @@ package com.dbflow5.rx2.query
 import com.dbflow5.test.TestDatabase_Database
 import com.dbflow5.database.writableTransaction
 import com.dbflow5.test.SimpleModel
-import com.dbflow5.test.SimpleModel_Table
 import com.dbflow5.query.delete
 import com.dbflow5.query.insert
 import com.dbflow5.query.select
@@ -47,15 +46,15 @@ class CursorResultSubscriberTest {
             }
         db.writableTransaction {
             assertTrue(
-                simpleModelAdapter.insert(SimpleModel_Table.name.eq("test"))
+                simpleModelAdapter.insert(SimpleModel.name.eq("test"))
                     .execute() > 0
             )
             assertTrue(
-                simpleModelAdapter.insert(SimpleModel_Table.name.eq("test1"))
+                simpleModelAdapter.insert(SimpleModel.name.eq("test1"))
                     .execute() > 0
             )
             assertTrue(
-                simpleModelAdapter.insert(SimpleModel_Table.name.eq("test2"))
+                simpleModelAdapter.insert(SimpleModel.name.eq("test2"))
                     .execute() > 0
             )
         }
@@ -65,7 +64,7 @@ class CursorResultSubscriberTest {
 
         val model = (select
             from simpleModelAdapter
-            where SimpleModel_Table.name.eq("test"))
+            where SimpleModel.name.eq("test"))
             .single()
 
         simpleModelAdapter.delete(model)

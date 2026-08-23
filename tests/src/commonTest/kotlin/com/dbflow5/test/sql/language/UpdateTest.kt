@@ -3,8 +3,8 @@ package com.dbflow5.test.sql.language
 import com.dbflow5.test.TestDatabase_Database
 import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.test.assertEquals
-import com.dbflow5.test.NumberModel_Table
-import com.dbflow5.test.SimpleModel_Table
+import com.dbflow5.test.NumberModel
+import com.dbflow5.test.SimpleModel
 import com.dbflow5.query.operations.Literal
 import com.dbflow5.query.orAbort
 import com.dbflow5.query.orFail
@@ -71,7 +71,7 @@ class UpdateTest : TestRule()  {
     fun validateSetQuery() {
         dbRule {
             "UPDATE `SimpleModel` SET `name` = 'name'".assertEquals(
-                simpleModelAdapter.update() set (SimpleModel_Table.name eq "name")
+                simpleModelAdapter.update() set (SimpleModel.name eq "name")
             )
         }
     }
@@ -81,8 +81,8 @@ class UpdateTest : TestRule()  {
         dbRule {
             "UPDATE OR FAIL `NumberModel` SET `id` = ? WHERE `id` = ?".assertEquals(
                 numberModelAdapter.update().or(ConflictAction.FAIL)
-                    .set(NumberModel_Table.id.eq(Literal.WildCard))
-                    .where(NumberModel_Table.id.eq(Literal.WildCard))
+                    .set(NumberModel.id.eq(Literal.WildCard))
+                    .where(NumberModel.id.eq(Literal.WildCard))
             )
         }
     }

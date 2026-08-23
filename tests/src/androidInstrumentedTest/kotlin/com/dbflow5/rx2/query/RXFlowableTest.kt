@@ -2,11 +2,8 @@ package com.dbflow5.rx2.query
 
 import com.dbflow5.test.TestDatabase_Database
 import com.dbflow5.test.Author
-import com.dbflow5.test.Author_Table
 import com.dbflow5.test.Blog
-import com.dbflow5.test.Blog_Table
 import com.dbflow5.test.SimpleModel
-import com.dbflow5.test.SimpleModel_Table
 import com.dbflow5.query.leftOuterJoin
 import com.dbflow5.query.methods.cast
 import com.dbflow5.query.select
@@ -32,7 +29,7 @@ class RXFlowableTest {
         var list = listOf<SimpleModel>()
         var triggerCount = 0
         val subscription = (select from simpleModelAdapter
-            where cast(SimpleModel_Table.name).asInteger().greaterThan(50))
+            where cast(SimpleModel.name).asInteger().greaterThan(50))
             .asFlowable(db) { list() }
             .subscribe {
                 list = it
@@ -47,8 +44,8 @@ class RXFlowableTest {
 
     @Test
     fun testObservesJoinTables() = dbRule.runTest {
-        val joinOn = Blog_Table.name.withTable()
-            .eq(Author_Table.first_name.withTable() + " " + Author_Table.last_name.withTable())
+        val joinOn = Blog.name.withTable()
+            .eq(Author.first_name.withTable() + " " + Author.last_name.withTable())
         assertEquals(
             "`Blog`.`name` = (`Author`.`first_name` + ' ' + `Author`.`last_name`)",
             joinOn.query

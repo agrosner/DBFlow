@@ -130,8 +130,8 @@ class TableBinderWriter(
         index: Int
     ): Int {
         add(
-            "%L.%L.%M(%L.%L",
-            classModel.generatedClassName.className,
+            "%T.%L.%M(%L.%L",
+            ClassNames.generatedAdapterCompanion(classModel.classType),
             model.propertyName,
             MemberNames.propertyBind,
             modelName,

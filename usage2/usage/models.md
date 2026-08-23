@@ -13,7 +13,7 @@ data class User(
 
 Register it on `@Database(tables = [User::class])`.
 
-Generated: `User_Table` (properties) and a `ModelAdapter<User>` you expose as an abstract `val` on the database.
+Generated: `User` (properties) and a `ModelAdapter<User>` you expose as an abstract `val` on the database.
 
 ## Columns
 

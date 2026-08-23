@@ -14,7 +14,7 @@ import com.dbflow5.query.select
 import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.TestDatabase_Database
 import com.dbflow5.test.TestRule
-import com.dbflow5.test.TwoColumnModel_Table
+import com.dbflow5.test.TwoColumnModel
 import com.dbflow5.test.assertEquals
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -70,8 +70,8 @@ class InsertTest : TestRule()  {
         assertEquals(
             "INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 0)",
             twoColumnModelAdapter.insert(
-                TwoColumnModel_Table.name.eq("name"),
-                TwoColumnModel_Table.id.eq(0)
+                TwoColumnModel.name.eq("name"),
+                TwoColumnModel.id.eq(0)
             ).query.trim()
         )
     }
@@ -106,8 +106,8 @@ class InsertTest : TestRule()  {
         assertEquals(
             "INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 0)",
             twoColumnModelAdapter.insert(
-                TwoColumnModel_Table.name.eq("name"),
-                TwoColumnModel_Table.id.eq(0)
+                TwoColumnModel.name.eq("name"),
+                TwoColumnModel.id.eq(0)
             ).query.trim()
         )
         assertEquals(
@@ -118,7 +118,7 @@ class InsertTest : TestRule()  {
                     Operation.Equals,
                     "name"
                 ),
-                TwoColumnModel_Table.id.eq(0)
+                TwoColumnModel.id.eq(0)
             ).query.trim()
         )
     }
