@@ -12,7 +12,7 @@ typealias QueryModel = Query
  * Description: Marks a Model class as NOT a [Table], but generates code for retrieving data from a
  * generic query
  */
-@Retention(AnnotationRetention.SOURCE)
+@Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FILE)
 annotation class Query(
     /**

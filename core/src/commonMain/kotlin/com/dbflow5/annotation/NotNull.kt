@@ -10,7 +10,7 @@ package com.dbflow5.annotation
  * in the [ForeignKeyReference].
  */
 @Target(AnnotationTarget.FIELD)
-@Retention(AnnotationRetention.SOURCE)
+@Retention(AnnotationRetention.BINARY)
 annotation class NotNull(
     /**
      * Defines how to handle conflicts for not null column

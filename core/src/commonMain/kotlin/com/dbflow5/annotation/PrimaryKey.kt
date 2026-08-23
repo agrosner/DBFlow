@@ -3,7 +3,7 @@ package com.dbflow5.annotation
 /**
  * Description:
  */
-@Retention(AnnotationRetention.SOURCE)
+@Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.FIELD)
 annotation class PrimaryKey(
     /**

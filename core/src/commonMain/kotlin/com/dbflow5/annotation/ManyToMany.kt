@@ -7,7 +7,7 @@ import kotlin.reflect.KClass
  * the annotation and its assumed that they use primary keys only. The generated
  * class will contain an auto-incrementing primary key by default.
  */
-@Retention(AnnotationRetention.SOURCE)
+@Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FILE)
 annotation class ManyToMany(
     /**

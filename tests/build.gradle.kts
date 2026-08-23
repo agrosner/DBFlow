@@ -5,7 +5,7 @@ import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeTest
 plugins {
     id("org.jetbrains.kotlin.multiplatform")
     id("com.android.kotlin.multiplatform.library")
-    alias(libs.plugins.ksp)
+    id("com.dbflow5")
 }
 
 kotlin {
@@ -56,16 +56,18 @@ kotlin {
             languageSettings.optIn("com.dbflow5.annotation.opts.InternalDBFlowApi")
         }
         commonMain {
-            kotlin.srcDir(layout.buildDirectory.dir("generated/ksp/metadata/commonMain/kotlin"))
             dependencies {
                 implementation(project(":lib"))
             }
         }
-        commonTest.dependencies {
-            implementation(project(":lib"))
-            implementation(kotlin("test"))
-            implementation(libs.kotlinx.coroutines.test)
-            implementation(libs.turbine)
+        commonTest {
+            kotlin.srcDir(layout.buildDirectory.dir("generated/dbflow/commonMain/kotlin"))
+            dependencies {
+                implementation(project(":lib"))
+                implementation(kotlin("test"))
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.turbine)
+            }
         }
         invokeWhenCreated("nativeTest") {
             dependencies {
@@ -113,9 +115,31 @@ kotlin {
     }
 }
 
-dependencies {
-    add("kspCommonMainMetadata", project(":ksp"))
+configurations.configureEach {
+    if (name.startsWith("kotlinCompilerPluginClasspath")) {
+        dependencies.add(project.dependencies.project(mapOf("path" to ":compiler")))
+    }
 }
+
+tasks.matching {
+    it.name == "compileCommonMainKotlinMetadata" || it.name == "compileKotlinMetadata"
+}.configureEach {
+    outputs.dir(layout.buildDirectory.dir("generated/dbflow/commonMain/kotlin"))
+}
+
+tasks.matching { task ->
+    val name = task.name
+    (name.startsWith("compile") && name.contains("Kotlin") &&
+        name != "compileCommonMainKotlinMetadata" &&
+        name != "compileKotlinMetadata")
+}.configureEach {
+    dependsOn(
+        tasks.matching {
+            it.name == "compileCommonMainKotlinMetadata" || it.name == "compileKotlinMetadata"
+        }
+    )
+}
+
 
 tasks.withType<KotlinNativeTest>().configureEach {
     environment(

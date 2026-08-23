@@ -5,7 +5,7 @@ import kotlin.reflect.KClass
 /**
  * Description:
  */
-@Retention(AnnotationRetention.SOURCE)
+@Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.FIELD)
 annotation class ForeignKey(
     /**

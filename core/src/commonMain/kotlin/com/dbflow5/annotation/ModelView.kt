@@ -5,7 +5,7 @@ import kotlin.reflect.KClass
 /**
  * Represents a SQLite VIEW.
  */
-@Retention(AnnotationRetention.SOURCE)
+@Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FILE)
 annotation class ModelView(
     /**

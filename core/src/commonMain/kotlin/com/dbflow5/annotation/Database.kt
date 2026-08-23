@@ -16,7 +16,7 @@ import kotlin.reflect.KClass
  *
  */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FILE)
-@Retention(AnnotationRetention.SOURCE)
+@Retention(AnnotationRetention.BINARY)
 annotation class Database(
     /**
      * @return The current version of the DB. Increment it to trigger a DB update.

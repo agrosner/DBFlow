@@ -5,14 +5,14 @@ import kotlin.reflect.KClass
 /**
  * Description: Creates a class using the SQLITE FTS3 [https://www.sqlite.org/fts3.html]
  */
-@Retention(AnnotationRetention.SOURCE)
+@Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.CLASS)
 annotation class Fts3
 
 /**
  * Description: Creates a class using the SQLITE FTS4 [https://www.sqlite.org/fts3.html]
  */
-@Retention(AnnotationRetention.SOURCE)
+@Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.CLASS)
 annotation class Fts4(
     /**

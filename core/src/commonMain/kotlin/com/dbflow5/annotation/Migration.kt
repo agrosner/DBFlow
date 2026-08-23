@@ -6,7 +6,7 @@ import kotlin.reflect.KClass
  * Description: Marks a Migration class to be included in DB construction. The class using this annotation
  * must implement the Migration interface.
  */
-@Retention(AnnotationRetention.SOURCE)
+@Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.CLASS)
 annotation class Migration(
     /**

@@ -9,7 +9,7 @@ package com.dbflow5.annotation
  * column type of the referenced column. By using a field as a Model object,
  * you will need to ensure the same types are used.
  */
-@Retention(AnnotationRetention.SOURCE)
+@Retention(AnnotationRetention.BINARY)
 annotation class ForeignKeyReference(
         /**
          * @return The local column name that will be referenced in the DB

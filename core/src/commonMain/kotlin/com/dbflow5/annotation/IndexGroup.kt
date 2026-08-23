@@ -6,7 +6,7 @@ const val INDEX_GENERIC = -1
  * Description:
  */
 @Target(AnnotationTarget.ANNOTATION_CLASS)
-@Retention(AnnotationRetention.SOURCE)
+@Retention(AnnotationRetention.BINARY)
 annotation class IndexGroup(
         /**
          * @return The number that each contained [Index] points to, so they can be combined into a single index.

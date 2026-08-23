@@ -1,4 +1,5 @@
 pluginManagement {
+    includeBuild("compiler-gradle")
     repositories {
         google()
         mavenCentral()
@@ -30,4 +31,5 @@ include(
     ":ksp-tests",
     ":shared-model",
     ":kotlin-codegen",
+    ":compiler",
 )

@@ -8,7 +8,7 @@ import kotlin.reflect.KClass
  * This will generate a $Table and $Adapter class. The $Table class generates static final column name variables to reference in queries.
  * The $Adapter class defines how to retrieve and store this object as well as other methods for acting on model objects in the database.
  */
-@Retention(AnnotationRetention.SOURCE)
+@Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.CLASS)
 annotation class Table(
     /**

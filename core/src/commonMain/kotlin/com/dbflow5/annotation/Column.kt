@@ -7,7 +7,7 @@ import kotlin.reflect.KClass
  * Description: Marks a field as corresponding to a column in the DB.
  * When adding new columns or changing names, you need to define a new [Migration].
  */
-@Retention(AnnotationRetention.SOURCE)
+@Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.FIELD)
 annotation class Column(
     /**

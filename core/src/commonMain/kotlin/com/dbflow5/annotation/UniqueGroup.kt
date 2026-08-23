@@ -4,7 +4,7 @@ package com.dbflow5.annotation
  * Description:
  */
 @Target(AnnotationTarget.ANNOTATION_CLASS)
-@Retention(AnnotationRetention.SOURCE)
+@Retention(AnnotationRetention.BINARY)
 annotation class UniqueGroup(
         /**
          * @return The number that columns point to to use this group
