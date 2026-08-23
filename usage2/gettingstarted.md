@@ -21,8 +21,6 @@ The plugin emits `AppDatabase_Database` (a `DBCreator`) and `User_Table` (column
 
 ## 2. Open the database
 
-Load the generated holder once, then create the database.
-
 **Android**
 
 ```kotlin
@@ -32,22 +30,22 @@ class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        DatabaseObjectLookup.loadHolder(GeneratedDatabaseHolderFactory)
-        db = AppDatabase_Database.create(this) {
+        db = createDB<AppDatabase>(this) {
             copy(name = "App")
         }
     }
 }
 ```
 
-**JVM**
+**JVM / Native**
 
 ```kotlin
-DatabaseObjectLookup.loadHolder(GeneratedDatabaseHolderFactory)
-val db = AppDatabase_Database.create {
+val db = createDB<AppDatabase> {
     copy(name = "App")
 }
 ```
+
+The compiler plugin rewrites `createDB` to the generated factory. Call it from a compilation that includes generated sources (see [install](including-in-project.md#generated-sources)).
 
 `create` takes a `DBSettings` copy block: name, in-memory, journal mode, open helper, dispatchers.
 

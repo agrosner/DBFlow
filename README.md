@@ -20,8 +20,9 @@ data class User(
 ```
 
 ```kotlin
-val db = AppDatabase_Database.create(context) { copy(name = "App") }
-DatabaseObjectLookup.loadHolder(GeneratedDatabaseHolderFactory)
+import com.dbflow5.database.createDB
+
+val db = createDB<AppDatabase>(context) { copy(name = "App") }
 
 db.writableTransaction {
     userAdapter.save(User(name = "Ada"))

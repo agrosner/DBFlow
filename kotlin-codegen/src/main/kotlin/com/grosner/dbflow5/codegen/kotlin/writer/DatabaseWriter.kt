@@ -32,12 +32,11 @@ class DatabaseWriter(
 ) : TypeCreator<DatabaseModel, FileSpec> {
 
     override fun create(model: DatabaseModel): FileSpec {
-        val name =
-            nameAllocator.newName(
-                model.generatedClassName.shortName.stripQuotes()
-                    .replaceFirstChar { it.lowercase() },
-                model.generatedClassName,
-            )
+        nameAllocator.newName(
+            model.generatedClassName.shortName.stripQuotes()
+                .replaceFirstChar { it.lowercase() },
+            model.generatedClassName,
+        )
 
         val version = ParameterPropertySpec(
             name = "databaseVersion",
@@ -121,9 +120,14 @@ class DatabaseWriter(
                                                     .build()
                                             )
                                             .addStatement(
-                                                "return %T.%N_factory(settings = %T(name = %S, platformSettings = platformSettings).settingsFn())",
+                                                "%T.loadHolder(%T)",
+                                                ClassNames.DatabaseObjectLookup,
                                                 ClassNames.GeneratedDatabaseHolderFactory,
-                                                name,
+                                            )
+                                            .addStatement(
+                                                "return %T.%N(settings = %T(name = %S, platformSettings = platformSettings).settingsFn())",
+                                                ClassNames.GeneratedDatabaseHolderFactory,
+                                                model.factoryFunctionName,
                                                 ClassNames.DBSettings,
                                                 model.name.shortName,
                                             )

@@ -16,7 +16,7 @@ androidMain.dependencies {
 ```
 
 ```kotlin
-val db = CipherDatabase_Database.create(context) {
+val db = createDB<CipherDatabase>(context) {
     copy(
         name = "Secure",
         openHelperCreator = SQLCipherOpenHelper.createHelperCreator(context, secret = "your-secret"),

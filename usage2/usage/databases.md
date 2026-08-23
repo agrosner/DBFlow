@@ -27,24 +27,26 @@ A table belongs to one database. List it on `@Database` (preferred) or set `@Tab
 
 ## Open
 
-Call `DatabaseObjectLookup.loadHolder(GeneratedDatabaseHolderFactory)` once per process before KClass lookups (`select from User::class`). Creating via `AppDatabase_Database.create` uses the generated factory directly.
+Call `createDB` — the compiler plugin rewrites it to the generated factory. Include generated sources in that compilation.
 
 ```kotlin
 // Android
-val db = AppDatabase_Database.create(context) {
+val db = createDB<AppDatabase>(context) {
     copy(name = "App", inMemory = false)
 }
 
-// JVM
-val db = AppDatabase_Database.create {
+// JVM / Native
+val db = createDB<AppDatabase> {
     copy(name = "App")
 }
 
 // Explicit platform settings (all targets)
-val db = AppDatabase_Database.create(DBPlatformSettings()) {
+val db = createDB<AppDatabase>(DBPlatformSettings()) {
     copy(name = "App")
 }
 ```
+
+`createDB` loads `GeneratedDatabaseHolderFactory` so KClass lookups such as `select from User::class` work after open. You can still call `DatabaseObjectLookup.loadHolder` yourself in multi-module apps.
 
 `DBSettings` fields you typically copy:
 

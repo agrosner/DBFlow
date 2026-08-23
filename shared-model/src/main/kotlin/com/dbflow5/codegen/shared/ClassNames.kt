@@ -86,6 +86,7 @@ object ClassNames {
         ClassName(PackageNames.Database, "GeneratedDatabaseHolderFactory")
     val DatabaseHolderFactory = ClassName(PackageNames.Database, "DatabaseHolderFactory")
     val DatabaseHolder = ClassName(PackageNames.Database, "DatabaseHolder")
+    val DatabaseObjectLookup = ClassName(PackageNames.Database, "DatabaseObjectLookup")
 
     val TypeConverter = ClassName(PackageNames.Converter, "TypeConverter")
     val LoadFromCursorListener = ClassName(PackageNames.Query, "LoadFromCursorListener")

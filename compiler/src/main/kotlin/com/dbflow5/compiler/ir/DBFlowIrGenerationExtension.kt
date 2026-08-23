@@ -19,9 +19,11 @@ internal class DBFlowIrGenerationExtension(
 ) : IrGenerationExtension {
 
     override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
+        CreateDbIrTransformer(pluginContext).transform(moduleFragment)
         val output = File(
             generatedDir ?: System.getProperty(GENERATED_DIR_PROPERTY).orEmpty().ifEmpty { return }
         )
+        if (moduleFragment.compilesGeneratedSources(output)) return
         output.mkdirs()
 
         val classes = mutableListOf<IrClass>()
@@ -77,3 +79,11 @@ private fun IrClass.hasDbFlowAnnotation(): Boolean =
         hasAnnotation(IrTypeFqNames.Migration)
 
 internal const val GENERATED_DIR_PROPERTY = "dbflow.generated.dir"
+
+private fun IrModuleFragment.compilesGeneratedSources(output: File): Boolean {
+    val root = output.canonicalFile.toPath()
+    return files.any { file ->
+        val path = runCatching { File(file.fileEntry.name).canonicalFile.toPath() }.getOrNull()
+        path != null && path.startsWith(root)
+    }
+}

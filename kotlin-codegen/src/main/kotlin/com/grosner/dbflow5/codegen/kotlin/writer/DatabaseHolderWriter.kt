@@ -80,9 +80,8 @@ class DatabaseHolderWriter(
         model: DatabaseHolderModel,
     ) = apply {
         model.databases.forEach { db ->
-            val name = nameAllocator[db.generatedClassName]
             addFunction(
-                FunSpec.builder("${name}_factory")
+                FunSpec.builder(db.factoryFunctionName)
                     .addModifiers(KModifier.INTERNAL)
                     .addParameter("settings", ClassNames.DBSettings)
                     .returns(db.classType)
